@@ -437,6 +437,7 @@ export default function App() {
         <button type="button" className="feature currencyFeature" onClick={() => setPage('currency')}><Calculator/><strong>{t.currency}</strong><span>{t.currencyHint}</span></button>
         <button type="button" className="feature profileFeature" onClick={() => { setDraft(profile); setPage('setup'); }}><ShieldCheck/><strong>{t.setup}</strong><span>{t.setupHint}</span></button>
       </div>
+      <div style={{textAlign:"center",padding:"16px 12px 100px",fontSize:"0.9rem"}}><a href="https://tgpu.my/" target="_blank" rel="noopener noreferrer" style={{color:"inherit",textDecoration:"underline"}}>{locale === "ar" ? "جزء من منظومة TGPU الرقمية" : locale === "en" ? "Part of the TGPU Digital Ecosystem" : "Sebahagian daripada TGPU Digital Ecosystem"}</a></div>
     </main>}
 
     {page === 'setup' && <main className="page">{back}<section className="sectionHead"><h1>{t.setupTitle}</h1><p>{t.setupIntro}</p></section>
