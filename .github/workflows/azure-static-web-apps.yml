@@ -34,9 +34,54 @@ jobs:
       - name: Verify app build
         run: npm run build
 
+      # Azure preview quota was exhausted on PR #19 (workflow 39087114332).
+      # Validate the full PR layout locally without claiming an Azure preview.
+      - name: Render pull-request mobile and desktop UI locally
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s dist/index.html
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory dist > /tmp/teman-pr-server.log 2>&1 &
+          server_pid="$!"
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..15}; do
+            if curl --fail --silent --show-error http://127.0.0.1:4173/ -o /tmp/teman-pr-home.html; then break; fi
+            sleep 1
+          done
+          grep -Fq 'TEMAN Haramain' /tmp/teman-pr-home.html
+          CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          if [ -z "$CHROME" ]; then echo "::error::Chrome is unavailable for TEMAN local UI QA"; exit 1; fi
+          mkdir -p "$RUNNER_TEMP/teman-pr-qa"
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage \
+            --disable-background-networking --virtual-time-budget=7000 \
+            --window-size=390,844 --user-data-dir="$RUNNER_TEMP/teman-pr-mobile-profile" \
+            --dump-dom http://127.0.0.1:4173/ > "$RUNNER_TEMP/teman-pr-qa/mobile-dom.html"
+          grep -Fq 'https://tgpu.my/' "$RUNNER_TEMP/teman-pr-qa/mobile-dom.html"
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage \
+            --window-size=390,844 --user-data-dir="$RUNNER_TEMP/teman-pr-mobile-image" \
+            --screenshot="$RUNNER_TEMP/teman-pr-qa/mobile.png" http://127.0.0.1:4173/
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage \
+            --window-size=1440,1000 --user-data-dir="$RUNNER_TEMP/teman-pr-desktop-image" \
+            --screenshot="$RUNNER_TEMP/teman-pr-qa/desktop.png" http://127.0.0.1:4173/
+          test -s "$RUNNER_TEMP/teman-pr-qa/mobile.png"
+          test -s "$RUNNER_TEMP/teman-pr-qa/desktop.png"
+          echo "PASS: PR built and rendered locally at mobile and desktop sizes without using Azure staging quota"
+
+      - name: Upload local PR visual QA evidence
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: teman-pr-local-visual-qa
+          path: ${{ runner.temp }}/teman-pr-qa/
+          retention-days: 7
+          if-no-files-found: warn
+
   build_and_deploy_job:
     needs: test_job
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    # Production deployment remains restricted to main pushes.
+    # PRs use local browser QA until obsolete Azure staging slots are reclaimed.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     name: Build and Deploy TEMAN
     steps:
