@@ -54,3 +54,7 @@
   .seniorTextMode .arabic{font-size:31px}
   .seniorTextMode .safetyDock button span{font-size:12px}
 }
+
+a:focus-visible,select:focus-visible,textarea:focus-visible{outline:4px solid var(--focus,#f0c85a);outline-offset:3px}
+[dir=rtl] .textSizeToggle{margin-left:0;margin-right:auto}
+@media(max-width:640px){.topbar{flex-wrap:wrap}.topbar button{min-height:44px}}
