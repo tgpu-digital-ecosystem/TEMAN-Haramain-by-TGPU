@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { GlobalPilgrimHelp } from './global-pilgrim-help';
 import {
   AlertTriangle,
   ArrowLeft,
@@ -422,12 +423,13 @@ export default function App() {
           <button type="button" onClick={() => openUtility('.temanReminderTrigger')}><NotebookPen size={22}/><span>{t.remindersTool}</span></button>
         </div>
       </section>
+      <GlobalPilgrimHelp locale={locale} onPrepare={() => {setDraft(profile);setPage('setup');}} onIbadah={() => setPage('ibadah')} onPhrases={() => setPage('translate')}/>
       <section className="travelIndustryGateway" aria-label="Umrah and Hajj industry">
         <strong>Umrah & Hajj industry</strong>
         <span>Travel agencies, Saudi ground operators and pilgrimage-service companies can explore the TGPU Saudi/GCC business pathway.</span>
         <div>
           <a href="https://gccmarketentry.me/?utm_source=teman.tgpu.my&utm_medium=referral&utm_campaign=umrah_hajj_industry" target="_blank" rel="noopener noreferrer">GCC market-entry resources</a>
-          <a href="https://connect.tgpu.my/business?utm_source=teman.tgpu.my&utm_medium=referral&utm_campaign=umrah_hajj_industry&utm_content=teman_home" target="_blank" rel="noopener noreferrer">Business partnership enquiry</a>
+          <a href="https://connect.tgpugulf.com/?utm_source=teman.tgpu.my&utm_medium=referral&utm_campaign=umrah_hajj_industry&utm_content=teman_home" target="_blank" rel="noopener noreferrer">Business partnership enquiry</a>
         </div>
       </section>
       <div className="grid featureGrid">
