@@ -281,12 +281,27 @@ export default function App() {
   };
 
   const speak = (text: string, lang = 'ar-SA') => {
-    if (!('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
+    if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) {
+      window.alert('Voice playback is unavailable on this device or browser.');
+      return;
+    }
+    const engine = window.speechSynthesis;
+    engine.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = lang;
     utterance.rate = 0.82;
-    window.speechSynthesis.speak(utterance);
+    let started = false;
+    utterance.onstart = () => { started = true; };
+    utterance.onerror = () => {
+      window.alert('Voice playback failed. Check that an Arabic text-to-speech voice is installed and enabled on your device.');
+    };
+    const available = engine.getVoices();
+    const arabicVoice = available.find(voice => voice.lang.toLowerCase() === 'ar-sa')
+      ?? available.find(voice => voice.lang.toLowerCase().startsWith('ar'));
+    if (arabicVoice && lang.toLowerCase().startsWith('ar')) utterance.voice = arabicVoice;
+    engine.speak(utterance);
+    // Some Android engines remain paused after navigation.
+    if (engine.paused) engine.resume();
   };
 
   const phone = (number: string) => {
