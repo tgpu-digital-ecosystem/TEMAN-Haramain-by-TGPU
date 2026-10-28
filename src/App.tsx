@@ -281,7 +281,7 @@ export default function App() {
   };
 
   const speak = (text: string, lang = 'ar-SA') => {
-    if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) {
+    if (typeof window.speechSynthesis === 'undefined' || typeof SpeechSynthesisUtterance === 'undefined') {
       window.alert('Voice playback is unavailable on this device or browser.');
       return;
     }
