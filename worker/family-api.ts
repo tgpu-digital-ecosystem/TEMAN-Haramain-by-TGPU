@@ -64,6 +64,20 @@ function configured(env: FamilyEnvironment): env is FamilyEnvironment & { FAMILY
   return Boolean(env.FAMILY_DB && env.TEMAN_FAMILY_RATE_SALT && env.TEMAN_FAMILY_RATE_SALT.length >= 32);
 }
 
+/**
+ * Purge stale Family Link records without requiring anyone to activate a new link.
+ * Do not log token hashes, IP-derived rate keys, or pilgrim status information.
+ * The caller must only provide an explicitly approved, environment-isolated D1 binding.
+ */
+export async function purgeExpiredFamilyRecords(db: FamilyDatabase, now = Date.now()): Promise<void> {
+  const period = Math.floor(now / DAY);
+  await db.batch([
+    db.prepare('DELETE FROM family_status WHERE family_id IN (SELECT family_id FROM family_channels WHERE expires_at <= ?)').bind(now),
+    db.prepare('DELETE FROM family_channels WHERE expires_at <= ?').bind(now),
+    db.prepare('DELETE FROM family_rate WHERE day < ?').bind(period - 1),
+  ]);
+}
+
 export async function familyApi(request: Request, env: FamilyEnvironment): Promise<Response> {
   const url = new URL(request.url);
   const path = url.pathname;
@@ -91,13 +105,8 @@ export async function familyApi(request: Request, env: FamilyEnvironment): Promi
       ).bind(key, period).run();
       if (quota.meta.changes !== 1) return answer(429, { ok: false, message: 'Try again tomorrow.' });
 
-      // Remove expired personal records before issuing a new link.
-      // Delete child rows first even when SQLite foreign-key enforcement is disabled.
-      await db.batch([
-        db.prepare('DELETE FROM family_status WHERE family_id IN (SELECT family_id FROM family_channels WHERE expires_at <= ?)').bind(now),
-        db.prepare('DELETE FROM family_channels WHERE expires_at <= ?').bind(now),
-        db.prepare('DELETE FROM family_rate WHERE day < ?').bind(period - 1),
-      ]);
+      // Opportunistic fallback if scheduled cleanup has not run recently.
+      await purgeExpiredFamilyRecords(db, now);
       const familyId = token().slice(0, 32);
       const writeToken = token();
       const viewerToken = token();
