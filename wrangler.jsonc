@@ -11,5 +11,10 @@
     ]
   },
   "previews": {},
-  "main": "./worker/entry.ts"
+  "main": "./worker/entry.ts",
+  "triggers": {
+    "crons": [
+      "0 3 * * *"
+    ]
+  }
 }
