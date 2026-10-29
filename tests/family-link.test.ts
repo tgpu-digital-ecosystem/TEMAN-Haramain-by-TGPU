@@ -50,6 +50,8 @@ describe('family link local behavior', () => {
       expect(document.querySelector('.familyMessage')?.textContent).toContain('Family cloud is unavailable');
     });
     expect(localStorage.getItem('teman.family.cloud.v1')).toBeNull();
+    expect(document.querySelector('[data-activate]')).toBeNull();
+    expect(document.querySelectorAll('[data-share-status]')).toHaveLength(2);
     document.querySelector<HTMLButtonElement>('[data-checkin="safe"]')?.click();
     expect(localStorage.getItem('teman.family.checkins.v1')).toContain('"status":"safe"');
   });
