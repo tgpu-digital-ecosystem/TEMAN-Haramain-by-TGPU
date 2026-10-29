@@ -25,6 +25,7 @@
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "@types/qrcode": "^1.5.5",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.11",
+    "wrangler": "^4.135.0"
   }
 }
