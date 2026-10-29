@@ -90,6 +90,14 @@ export async function familyApi(request: Request, env: FamilyEnvironment): Promi
         'INSERT INTO family_rate (rate_key, day, count) VALUES (?, ?, 1) ON CONFLICT(rate_key) DO UPDATE SET count = count + 1 WHERE count < 5'
       ).bind(key, period).run();
       if (quota.meta.changes !== 1) return answer(429, { ok: false, message: 'Try again tomorrow.' });
+
+      // Remove expired personal records before issuing a new link.
+      // Delete child rows first even when SQLite foreign-key enforcement is disabled.
+      await db.batch([
+        db.prepare('DELETE FROM family_status WHERE family_id IN (SELECT family_id FROM family_channels WHERE expires_at <= ?)').bind(now),
+        db.prepare('DELETE FROM family_channels WHERE expires_at <= ?').bind(now),
+        db.prepare('DELETE FROM family_rate WHERE day < ?').bind(period - 1),
+      ]);
       const familyId = token().slice(0, 32);
       const writeToken = token();
       const viewerToken = token();
