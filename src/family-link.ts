@@ -104,6 +104,8 @@ export function initFamilyLink() {
   let cloud = readJson<CloudLink | null>(CLOUD_KEY, null);
   let message = '';
   let busy = false;
+  // Once the service has confirmed its API is unavailable, prefer the safe manual path.
+  let cloudUnavailable = false;
 
   const saveCheckIns = () => { writeJson(CHECKINS_KEY, checkIns.slice(0, 20)); };
   const saveCloud = () => { if (cloud) writeJson(CLOUD_KEY, cloud); else localStorage.removeItem(CLOUD_KEY); };
@@ -163,9 +165,8 @@ export function initFamilyLink() {
       if (!response.ok || !body.familyId || !body.writeToken || !body.viewerToken) {
         // A static Worker/SPA fallback may return HTML or 404 instead of the Azure Functions API.
         // Never treat that response as a valid family link or invent private tokens.
-        message = (!isJson || response.status === 404 || response.status === 405 || body.configurationRequired)
-          ? t().configRequired
-          : t().activationFailed;
+        cloudUnavailable = !isJson || response.status === 404 || response.status === 405 || Boolean(body.configurationRequired);
+        message = cloudUnavailable ? t().configRequired : t().activationFailed;
         return;
       }
       const lang = locale();
@@ -232,7 +233,7 @@ export function initFamilyLink() {
       <div class="temanFamilyBody">
         <div class="familyConnectivity ${navigator.onLine ? 'online' : 'offline'}">${navigator.onLine ? '● '+c.online : '● '+c.offline}</div>
         ${message ? `<div class="familyMessage">${escapeHtml(message)}</div>` : ''}
-        ${cloud ? `<section class="familyCloud active"><strong>${c.cloudActive}</strong><span>${pending} ${c.pending}</span><small>${cloud.lastSyncedAt ? formatTime(cloud.lastSyncedAt) : '—'}</small><button type="button" data-share-link>${c.shareLink}</button><button type="button" class="secondary" data-sync>${c.sync}</button><button type="button" class="danger" data-revoke>${busy ? c.revoking : c.revoke}</button></section>` : `<section class="familyCloud"><strong>${c.cloudInactive}</strong><p>${c.cloudInactiveText}</p><button type="button" data-activate ${busy ? 'disabled' : ''}>${busy ? c.activating : c.activate}</button></section>`}
+        ${cloud ? `<section class="familyCloud active"><strong>${c.cloudActive}</strong><span>${pending} ${c.pending}</span><small>${cloud.lastSyncedAt ? formatTime(cloud.lastSyncedAt) : '—'}</small><button type="button" data-share-link>${c.shareLink}</button><button type="button" class="secondary" data-sync>${c.sync}</button><button type="button" class="danger" data-revoke>${busy ? c.revoking : c.revoke}</button></section>` : `<section class="familyCloud"><strong>${c.cloudInactive}</strong><p>${c.cloudInactiveText}</p>${cloudUnavailable ? `<p role="status">${c.configRequired}</p><button type="button" data-share-status>${c.shareStatus}</button>` : `<button type="button" data-activate ${busy ? 'disabled' : ''}>${busy ? c.activating : c.activate}</button>`}</section>`}
         <div class="familyActionGrid">
           <button type="button" class="safe" data-checkin="safe"><b>✓ ${c.safe}</b><span>${c.safeHint}</span></button>
           <button type="button" data-checkin="with-group"><b>👥 ${c.withGroup}</b><span>${c.withGroupHint}</span></button>
