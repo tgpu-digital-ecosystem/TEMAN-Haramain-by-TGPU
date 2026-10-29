@@ -141,8 +141,10 @@ button:disabled{cursor:not-allowed}
 .guide p{margin:0;color:#566c60;line-height:1.5;font-size:17px;overflow-wrap:anywhere}
 
 [dir='rtl'] .action,[dir='rtl'] .grid button,[dir='rtl'] .phraseList button{text-align:right}
-[dir='rtl'] .action{grid-template-columns:auto 1fr 38px}
-[dir='rtl'] .action>b{order:-1}
+/* Keep the emergency icon, readable label and arrow in three stable RTL columns. */
+[dir='rtl'] .action{grid-template-columns:38px minmax(0,1fr) 38px}
+[dir='rtl'] .action>div{min-width:0;width:100%}
+[dir='rtl'] .action>b{order:0}
 [dir='rtl'] .back svg{transform:rotate(180deg)}
 [dir='rtl'] .hero h1,[dir='rtl'] .hero h2,[dir='rtl'] .sectionHead h1{letter-spacing:0}
 [dir='rtl'] .cityHeading{flex-direction:row-reverse}
@@ -169,7 +171,7 @@ button:disabled{cursor:not-allowed}
   .helpCard,.translationCard{padding:18px}
   .cityPanel{padding:14px}
   .citySwitch button{min-height:56px;font-size:18px}
-  [dir='rtl'] .action{grid-template-columns:auto 1fr 34px}
+  [dir='rtl'] .action{grid-template-columns:34px minmax(0,1fr) 34px}
 }
 
 @media(max-width:380px){
