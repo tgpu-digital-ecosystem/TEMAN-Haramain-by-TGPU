@@ -43,7 +43,7 @@ const COPY = {
     activate: 'AKTIFKAN FAMILY LINK CLOUD', activating: 'MENGAKTIFKAN…', cloudActive: 'Family cloud aktif', shareLink: 'KONGSI PAUTAN FAMILY VIEW', sync: 'SYNC SEKARANG', revoke: 'MATIKAN PAUTAN KELUARGA', revoking: 'MEMPROSES…',
     safe: 'SAYA SELAMAT', safeHint: 'Hantar check-in keselamatan sekarang', withGroup: 'SAYA BERSAMA KUMPULAN', withGroupHint: 'Maklumkan bahawa anda bersama kumpulan', atHotel: 'SAYA SUDAH DI HOTEL', atHotelHint: 'Maklumkan bahawa anda telah kembali ke hotel', needContact: 'TOLONG HUBUNGI SAYA', needContactHint: 'Minta keluarga menghubungi anda',
     last: 'Status terakhir', none: 'Belum ada check-in', pilgrim: 'JEMAAH', status: 'STATUS', time: 'MASA', hotel: 'HOTEL', groupBus: 'KUMPULAN / BAS', pending: 'menunggu sync', shareStatus: 'KONGSI STATUS MANUAL', callFamily: 'TELEFON KELUARGA',
-    savedOffline: 'Check-in disimpan offline. Ia akan dihantar apabila internet kembali.', savedLocal: 'Check-in disimpan pada telefon.', sent: 'Check-in berjaya dihantar ke Family View.', activationFailed: 'Tidak dapat mengaktifkan Family Link sekarang.', configRequired: 'Family cloud belum dikonfigurasi pada Azure.', linkCopied: 'Pautan Family View disalin.', statusCopied: 'Status disalin.', shareCancelled: 'Perkongsian dibatalkan.', needCloud: 'Aktifkan Family Link cloud dahulu.', needCheckin: 'Buat satu check-in dahulu.', noPhone: 'Nombor keluarga belum disimpan dalam profil TEMAN.', revoked: 'Pautan Family View lama telah dimatikan.', revokeFailed: 'Tidak dapat mematikan pautan keluarga sekarang.', connectFirst: 'Sambungkan internet untuk menggunakan Family Link cloud.',
+    savedOffline: 'Check-in disimpan offline. Ia akan dihantar apabila internet kembali.', savedLocal: 'Check-in disimpan pada telefon.', sent: 'Check-in berjaya dihantar ke Family View.', activationFailed: 'Tidak dapat mengaktifkan Family Link sekarang.', configRequired: 'Family cloud tidak tersedia pada sambungan ini. Gunakan perkongsian status manual atau SMS sementara sambungan disemak.', linkCopied: 'Pautan Family View disalin.', statusCopied: 'Status disalin.', shareCancelled: 'Perkongsian dibatalkan.', needCloud: 'Aktifkan Family Link cloud dahulu.', needCheckin: 'Buat satu check-in dahulu.', noPhone: 'Nombor keluarga belum disimpan dalam profil TEMAN.', revoked: 'Pautan Family View lama telah dimatikan.', revokeFailed: 'Tidak dapat mematikan pautan keluarga sekarang.', connectFirst: 'Sambungkan internet untuk menggunakan Family Link cloud.',
   },
   en: {
     short: 'Family Link', title: 'TEMAN Family Link', intro: 'Tell your family with one tap. You choose exactly which status to share.',
@@ -52,7 +52,7 @@ const COPY = {
     activate: 'ACTIVATE FAMILY LINK CLOUD', activating: 'ACTIVATING…', cloudActive: 'Family cloud active', shareLink: 'SHARE FAMILY VIEW LINK', sync: 'SYNC NOW', revoke: 'DISABLE FAMILY LINK', revoking: 'PROCESSING…',
     safe: 'I AM SAFE', safeHint: 'Send a safety check-in now', withGroup: 'I AM WITH MY GROUP', withGroupHint: 'Tell family you are with your group', atHotel: 'I AM BACK AT THE HOTEL', atHotelHint: 'Tell family you have returned to the hotel', needContact: 'PLEASE CONTACT ME', needContactHint: 'Ask family to contact you',
     last: 'Latest status', none: 'No check-in yet', pilgrim: 'PILGRIM', status: 'STATUS', time: 'TIME', hotel: 'HOTEL', groupBus: 'GROUP / BUS', pending: 'waiting to sync', shareStatus: 'SHARE STATUS MANUALLY', callFamily: 'CALL FAMILY',
-    savedOffline: 'Check-in saved offline. It will be sent when internet returns.', savedLocal: 'Check-in saved on this phone.', sent: 'Check-in sent to Family View.', activationFailed: 'Family Link could not be activated right now.', configRequired: 'Family cloud is not configured on Azure yet.', linkCopied: 'Family View link copied.', statusCopied: 'Status copied.', shareCancelled: 'Sharing was cancelled.', needCloud: 'Activate Family Link cloud first.', needCheckin: 'Create a check-in first.', noPhone: 'No family phone number is saved in the TEMAN profile.', revoked: 'The old Family View link has been disabled.', revokeFailed: 'Family Link could not be disabled right now.', connectFirst: 'Connect to the internet to use Family Link cloud.',
+    savedOffline: 'Check-in saved offline. It will be sent when internet returns.', savedLocal: 'Check-in saved on this phone.', sent: 'Check-in sent to Family View.', activationFailed: 'Family Link could not be activated right now.', configRequired: 'Family cloud is unavailable on this connection. Use manual status sharing or SMS while the service is checked.', linkCopied: 'Family View link copied.', statusCopied: 'Status copied.', shareCancelled: 'Sharing was cancelled.', needCloud: 'Activate Family Link cloud first.', needCheckin: 'Create a check-in first.', noPhone: 'No family phone number is saved in the TEMAN profile.', revoked: 'The old Family View link has been disabled.', revokeFailed: 'Family Link could not be disabled right now.', connectFirst: 'Connect to the internet to use Family Link cloud.',
   },
   ar: {
     short: 'رابط الأسرة', title: 'TEMAN رابط الأسرة', intro: 'طمئن أسرتك بضغطة واحدة. أنت تختار بنفسك الحالة التي تريد مشاركتها.',
@@ -61,7 +61,7 @@ const COPY = {
     activate: 'تفعيل رابط الأسرة', activating: 'جارٍ التفعيل…', cloudActive: 'رابط الأسرة مفعل', shareLink: 'مشاركة رابط الأسرة', sync: 'مزامنة الآن', revoke: 'إيقاف رابط الأسرة', revoking: 'جارٍ التنفيذ…',
     safe: 'أنا بخير', safeHint: 'أرسل حالة اطمئنان الآن', withGroup: 'أنا مع مجموعتي', withGroupHint: 'أخبر الأسرة أنك مع المجموعة', atHotel: 'وصلت إلى الفندق', atHotelHint: 'أخبر الأسرة أنك عدت إلى الفندق', needContact: 'يرجى الاتصال بي', needContactHint: 'اطلب من الأسرة الاتصال بك',
     last: 'آخر حالة', none: 'لا توجد حالة بعد', pilgrim: 'الحاج / المعتمر', status: 'الحالة', time: 'الوقت', hotel: 'الفندق', groupBus: 'المجموعة / الحافلة', pending: 'بانتظار المزامنة', shareStatus: 'مشاركة الحالة يدويًا', callFamily: 'الاتصال بالأسرة',
-    savedOffline: 'تم حفظ الحالة دون إنترنت وسترسل عند عودة الاتصال.', savedLocal: 'تم حفظ الحالة على الهاتف.', sent: 'تم إرسال الحالة إلى صفحة الأسرة.', activationFailed: 'تعذر تفعيل رابط الأسرة الآن.', configRequired: 'خدمة الأسرة السحابية لم تُضبط على Azure بعد.', linkCopied: 'تم نسخ رابط الأسرة.', statusCopied: 'تم نسخ الحالة.', shareCancelled: 'تم إلغاء المشاركة.', needCloud: 'فعّل رابط الأسرة السحابي أولاً.', needCheckin: 'أرسل حالة أولاً.', noPhone: 'رقم الأسرة غير محفوظ في ملف TEMAN.', revoked: 'تم إيقاف رابط الأسرة القديم.', revokeFailed: 'تعذر إيقاف رابط الأسرة الآن.', connectFirst: 'اتصل بالإنترنت لاستخدام رابط الأسرة السحابي.',
+    savedOffline: 'تم حفظ الحالة دون إنترنت وسترسل عند عودة الاتصال.', savedLocal: 'تم حفظ الحالة على الهاتف.', sent: 'تم إرسال الحالة إلى صفحة الأسرة.', activationFailed: 'تعذر تفعيل رابط الأسرة الآن.', configRequired: 'خدمة رابط الأسرة السحابية غير متاحة عبر هذا الاتصال. استخدم مشاركة الحالة يدويًا أو الرسائل القصيرة مؤقتًا.', linkCopied: 'تم نسخ رابط الأسرة.', statusCopied: 'تم نسخ الحالة.', shareCancelled: 'تم إلغاء المشاركة.', needCloud: 'فعّل رابط الأسرة السحابي أولاً.', needCheckin: 'أرسل حالة أولاً.', noPhone: 'رقم الأسرة غير محفوظ في ملف TEMAN.', revoked: 'تم إيقاف رابط الأسرة القديم.', revokeFailed: 'تعذر إيقاف رابط الأسرة الآن.', connectFirst: 'اتصل بالإنترنت لاستخدام رابط الأسرة السحابي.',
   },
 } as const;
 
@@ -155,9 +155,18 @@ export function initFamilyLink() {
     busy = true; renderOverlay();
     try {
       const response = await fetch('/api/family/pair', { method:'POST' });
-      const body = await response.json().catch(() => ({})) as { familyId?:string; writeToken?:string; viewerToken?:string; configurationRequired?:boolean; message?:string };
+      const contentType = response.headers.get('content-type') || '';
+      const isJson = /application\/json/i.test(contentType);
+      const body = isJson
+        ? await response.json().catch(() => ({})) as { familyId?:string; writeToken?:string; viewerToken?:string; configurationRequired?:boolean; message?:string }
+        : {} as { familyId?:string; writeToken?:string; viewerToken?:string; configurationRequired?:boolean; message?:string };
       if (!response.ok || !body.familyId || !body.writeToken || !body.viewerToken) {
-        message = body.configurationRequired ? t().configRequired : (body.message || t().activationFailed); return;
+        // A static Worker/SPA fallback may return HTML or 404 instead of the Azure Functions API.
+        // Never treat that response as a valid family link or invent private tokens.
+        message = (!isJson || response.status === 404 || response.status === 405 || body.configurationRequired)
+          ? t().configRequired
+          : t().activationFailed;
+        return;
       }
       const lang = locale();
       cloud = {
