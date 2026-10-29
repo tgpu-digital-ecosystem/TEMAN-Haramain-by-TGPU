@@ -258,7 +258,7 @@ export function initFamilyLink() {
     overlay.querySelector<HTMLButtonElement>('[data-share-link]')?.addEventListener('click', () => void shareFamilyLink());
     overlay.querySelector<HTMLButtonElement>('[data-sync]')?.addEventListener('click', () => void flushPending());
     overlay.querySelector<HTMLButtonElement>('[data-revoke]')?.addEventListener('click', () => void revokeCloud());
-    overlay.querySelector<HTMLButtonElement>('[data-share-status]')?.addEventListener('click', () => void shareLatest());
+    overlay.querySelectorAll<HTMLButtonElement>('[data-share-status]').forEach(button => button.addEventListener('click', () => void shareLatest()));
     overlay.querySelector<HTMLButtonElement>('[data-call]')?.addEventListener('click', callFamily);
     overlay.querySelectorAll<HTMLButtonElement>('[data-checkin]').forEach(button => button.addEventListener('click', () => void saveCheckIn(button.dataset.checkin as CheckInStatus)));
   }
