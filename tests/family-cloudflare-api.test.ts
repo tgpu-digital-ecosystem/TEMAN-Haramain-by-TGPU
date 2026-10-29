@@ -37,6 +37,31 @@ describe('Family Link Cloudflare backend security gates', () => {
     expect(await result.text()).not.toContain('database internals');
   });
 
+  it('purges expired family records before creating any new link', async () => {
+    const operations: string[] = [];
+    const db = {
+      prepare: vi.fn((sql: string) => ({
+        bind: (..._args: unknown[]) => ({
+          run: async () => { operations.push(sql); return { meta: { changes: 1 } }; },
+        }),
+      })),
+      batch: vi.fn(async (statements: unknown[]) => {
+        expect(statements).toHaveLength(3);
+        return [];
+      }),
+    };
+    const response = await familyApi(pair(), {
+      FAMILY_DB: db as never, TEMAN_FAMILY_RATE_SALT: 'a'.repeat(32),
+    });
+    expect(response.status).toBe(201);
+    expect(db.batch).toHaveBeenCalledOnce();
+    const sqls = db.prepare.mock.calls.map(([query]) => query);
+    expect(sqls.join('\n')).toContain('DELETE FROM family_status WHERE family_id IN');
+    expect(sqls.join('\n')).toContain('DELETE FROM family_channels WHERE expires_at <=');
+    expect(sqls.join('\n')).toContain('DELETE FROM family_rate WHERE day <');
+    expect(operations.some(q => q.includes('INSERT INTO family_channels'))).toBe(true);
+  });
+
   it('does not send unsupported endpoints to the SPA or disclose data', async () => {
     const result = await familyApi(new Request('https://teman.example/api/private'), {});
     expect(result.status).toBe(404);
