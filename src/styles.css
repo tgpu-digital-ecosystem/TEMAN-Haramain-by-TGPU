@@ -272,3 +272,37 @@ button:disabled{cursor:not-allowed}
  .mobileUtilityGrid button{justify-content:flex-start;text-align:left;padding:11px 12px}
  [dir='rtl'] .mobileUtilityGrid button{justify-content:flex-start;text-align:right}
 }
+
+
+/* Arabic card readability: prevent the text track from collapsing to a few glyphs.
+   Scoped to RTL actions so English/Malay layout stays unchanged. */
+[dir='rtl'] .action {
+  grid-template-columns: 38px minmax(0, 1fr) 30px;
+  direction: rtl;
+  text-align: right;
+}
+[dir='rtl'] .action > svg { grid-column: 1; }
+[dir='rtl'] .action > div {
+  grid-column: 2;
+  min-width: 0;
+  width: 100%;
+  text-align: right;
+}
+[dir='rtl'] .action > b {
+  grid-column: 3;
+  order: initial;
+}
+[dir='rtl'] .action strong,
+[dir='rtl'] .action span {
+  overflow-wrap: normal;
+  word-break: normal;
+  white-space: normal;
+  hyphens: none;
+  letter-spacing: normal;
+}
+@media (max-width: 640px) {
+  [dir='rtl'] .action {
+    grid-template-columns: 34px minmax(0, 1fr) 24px;
+    gap: 10px;
+  }
+}
