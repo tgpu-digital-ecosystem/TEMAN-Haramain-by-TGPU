@@ -18,7 +18,8 @@
     "lucide-react": "latest",
     "qrcode": "^1.5.4",
     "maplibre-gl": "^6.11.2",
-    "pmtiles": "^4.3.0"
+    "pmtiles": "^4.3.0",
+    "@fontsource/noto-kufi-arabic": "^5.2.7"
   },
   "devDependencies": {
     "jsdom": "^26.1.0",
