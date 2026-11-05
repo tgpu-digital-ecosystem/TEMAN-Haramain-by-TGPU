@@ -1,3 +1,6 @@
+@import "@fontsource/noto-kufi-arabic/400.css";
+@import "@fontsource/noto-kufi-arabic/600.css";
+@import "@fontsource/noto-kufi-arabic/700.css";
 :root{
   font-family:Arial,"Noto Sans Arabic","Segoe UI",Tahoma,sans-serif;
   color:#173b2d;
@@ -306,3 +309,7 @@ button:disabled{cursor:not-allowed}
     gap: 10px;
   }
 }
+
+/* Noto Kufi Arabic for Arabic/RTL TEMAN interface; retain existing Latin styles. */
+:lang(ar),[lang="ar"],[dir="rtl"],.arabic{font-family:"Noto Kufi Arabic","Noto Sans Arabic",Tahoma,sans-serif}
+:lang(ar) button,:lang(ar) input,:lang(ar) textarea,[dir="rtl"] button,[dir="rtl"] input,[dir="rtl"] textarea{font-family:inherit}
