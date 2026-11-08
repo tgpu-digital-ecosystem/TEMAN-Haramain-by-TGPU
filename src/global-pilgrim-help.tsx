@@ -41,7 +41,7 @@ export function GlobalPilgrimHelp({ locale, onPrepare, onIbadah, onPhrases }: {l
     <a href="https://my.gov.sa/en/services/2173544" target="_blank" rel="noopener noreferrer">{t.official} <ExternalLink size={15} aria-hidden="true"/></a>
     <p>{t.notice}</p></div></div>
    <p className="globalHelpPrivacy">{t.privacy}</p>
-   <p className="globalHelpScope">{locale === "ar" ? "واجهة TEMAN متاحة بالملايوية والإنجليزية والعربية. الإرشادات بلغات إضافية لا تعني ترجمة جميع تعليمات الطوارئ أو المناسك. يلزم تدقيق لغوي مستقل." : locale === "ms" ? "Antara muka TEMAN tersedia dalam Bahasa Melayu, Inggeris dan Arab. Panduan bahasa tambahan bukan terjemahan penuh arahan kecemasan atau ibadah. Semakan bahasa bebas masih diperlukan." : "TEMAN supports Malay, English and Arabic. Additional language guidance does not translate all emergency or religious instructions. Independent language review is still required."}</p>
+   <p className="globalHelpScope">{locale === "ar" ? "واجهة TEMAN متاحة بالملايوية والإنجليزية والعربية. الإرشادات بلغات إضافية لا تعني ترجمة جميع تعليمات الطوارئ أو المناسك. يلزم تدقيق لغوي مستقل." : locale === "ms" ? "Antara muka TEMAN tersedia dalam Bahasa Melayu, Inggeris dan Arab. Panduan bahasa tambahan bukan terjemahan penuh arahan kecemasan atau ibadah. Semakan bahasa bebas masih diperlukan." : "TEMAN supports Malay, English and Arabic. Additional language guidance is not a full translation of emergency or religious instructions. Independent language review is still required."}</p>
   </div>
  </section>
 }
