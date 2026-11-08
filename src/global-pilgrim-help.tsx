@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BookOpen, ExternalLink, Globe2, ShieldCheck, UserRound } from 'lucide-react';
 import './global-pilgrim-help.css';
 
@@ -19,6 +19,7 @@ const COPY: Record<OutreachLanguage, {label:string,title:string,intro:string,ste
 const RTL: OutreachLanguage[] = ['ar','ur'];
 export function GlobalPilgrimHelp({ locale, onPrepare, onIbadah, onPhrases }: {locale:Locale,onPrepare:()=>void,onIbadah:()=>void,onPhrases:()=>void}) {
  const [language,setLanguage]=useState<OutreachLanguage>(locale);
+ useEffect(() => { setLanguage(locale); }, [locale]);
  const t=COPY[language];
  return <section className="globalPilgrimHelp" aria-labelledby="global-help-title">
   <div className="globalHelpKicker"><Globe2 aria-hidden="true" size={21}/><span>{locale==='ar'?'لغات العالم':locale==='ms'?'BANTUAN PELBAGAI BAHASA':'MULTILINGUAL SUPPORT'}</span></div>
@@ -40,7 +41,7 @@ export function GlobalPilgrimHelp({ locale, onPrepare, onIbadah, onPhrases }: {l
     <a href="https://my.gov.sa/en/services/2173544" target="_blank" rel="noopener noreferrer">{t.official} <ExternalLink size={15} aria-hidden="true"/></a>
     <p>{t.notice}</p></div></div>
    <p className="globalHelpPrivacy">{t.privacy}</p>
-   <p className="globalHelpScope">TGPU TEMAN interface: BM · English · العربية. This international orientation is not a full translation of TEMAN’s emergency interface or religious instructions. Independent language review required.</p>
+   <p className="globalHelpScope">{locale === "ar" ? "واجهة TEMAN متاحة بالملايوية والإنجليزية والعربية. الإرشادات بلغات إضافية لا تعني ترجمة جميع تعليمات الطوارئ أو المناسك. يلزم تدقيق لغوي مستقل." : locale === "ms" ? "Antara muka TEMAN tersedia dalam Bahasa Melayu, Inggeris dan Arab. Panduan bahasa tambahan bukan terjemahan penuh arahan kecemasan atau ibadah. Semakan bahasa bebas masih diperlukan." : "TEMAN supports Malay, English and Arabic. Additional language guidance is not a full translation of emergency or religious instructions. Independent language review is still required."}</p>
   </div>
  </section>
 }

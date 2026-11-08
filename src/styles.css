@@ -312,3 +312,9 @@ button:disabled{cursor:not-allowed}
 
 /* Unified Noto Kufi font across all TEMAN pages and form controls. */
 html,body,button,input,textarea,select{font-family:"Noto Kufi Arabic",Tahoma,sans-serif}
+
+/* Keep industry information readable and separate from the pilgrim actions. */
+.travelIndustryGateway{display:grid;gap:12px;min-width:0;overflow-wrap:anywhere}
+.travelIndustryGateway strong,.travelIndustryGateway span{display:block}
+.travelIndustryGateway>div{display:flex;flex-wrap:wrap;gap:10px 18px}
+.travelIndustryGateway a{display:inline-block;overflow-wrap:anywhere;line-height:1.5}
