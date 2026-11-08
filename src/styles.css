@@ -1,5 +1,8 @@
+@import "@fontsource/noto-kufi-arabic/400.css";
+@import "@fontsource/noto-kufi-arabic/600.css";
+@import "@fontsource/noto-kufi-arabic/700.css";
 :root{
-  font-family:Arial,"Noto Sans Arabic","Segoe UI",Tahoma,sans-serif;
+  font-family:"Noto Kufi Arabic",Tahoma,sans-serif;
   color:#173b2d;
   background:#f3f7f4;
   font-synthesis:none;
@@ -306,3 +309,6 @@ button:disabled{cursor:not-allowed}
     gap: 10px;
   }
 }
+
+/* Unified Noto Kufi font across all TEMAN pages and form controls. */
+html,body,button,input,textarea,select{font-family:"Noto Kufi Arabic",Tahoma,sans-serif}
