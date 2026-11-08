@@ -425,12 +425,12 @@ export default function App() {
         </div>
       </section>
       <GlobalPilgrimHelp locale={locale} onPrepare={() => {setDraft(profile);setPage('setup');}} onIbadah={() => setPage('ibadah')} onPhrases={() => setPage('translate')}/>
-      <section className="travelIndustryGateway" aria-label="Umrah and Hajj industry">
-        <strong>Umrah & Hajj industry</strong>
-        <span>Travel agencies, Saudi ground operators and pilgrimage-service companies can explore the TGPU Saudi/GCC business pathway.</span>
+      <section className="travelIndustryGateway" aria-label={locale === 'ar' ? 'خدمات قطاع الحج والعمرة' : locale === 'ms' ? 'Industri Umrah dan Haji' : 'Umrah and Hajj industry'}>
+        <strong>{locale === 'ar' ? 'قطاع الحج والعمرة' : locale === 'ms' ? 'Industri Umrah dan Haji' : 'Umrah & Hajj industry'}</strong>
+        <span>{locale === 'ar' ? 'يمكن لوكالات السفر ومقدمي الخدمات الأرضية في السعودية وشركات خدمة الحجاج والمعتمرين التعرف على مسار التعاون التجاري مع TGPU في السعودية والخليج.' : locale === 'ms' ? 'Agensi pelancongan, pengendali di Arab Saudi dan penyedia perkhidmatan jemaah boleh meneroka kerjasama perniagaan TGPU di Saudi dan GCC.' : 'Travel agencies, Saudi ground operators and pilgrimage-service companies can explore the TGPU Saudi/GCC business pathway.'}</span>
         <div>
-          <a href="https://gccmarketentry.me/?utm_source=teman.tgpu.my&utm_medium=referral&utm_campaign=umrah_hajj_industry" target="_blank" rel="noopener noreferrer">GCC market-entry resources</a>
-          <a href="https://connect.tgpugulf.com/?utm_source=teman.tgpu.my&utm_medium=referral&utm_campaign=umrah_hajj_industry&utm_content=teman_home" target="_blank" rel="noopener noreferrer">Business partnership enquiry</a>
+          <a href="https://gccmarketentry.me/?utm_source=teman.tgpu.my&utm_medium=referral&utm_campaign=umrah_hajj_industry" target="_blank" rel="noopener noreferrer">{locale === "ar" ? "موارد دخول أسواق الخليج" : locale === "ms" ? "Sumber pasaran GCC" : "GCC market-entry resources"}</a>
+          <a href="https://connect.tgpugulf.com/?utm_source=teman.tgpu.my&utm_medium=referral&utm_campaign=umrah_hajj_industry&utm_content=teman_home" target="_blank" rel="noopener noreferrer">{locale === "ar" ? "استفسار عن الشراكات التجارية" : locale === "ms" ? "Pertanyaan kerjasama perniagaan" : "Business partnership enquiry"}</a>
         </div>
       </section>
       <div className="grid featureGrid">
