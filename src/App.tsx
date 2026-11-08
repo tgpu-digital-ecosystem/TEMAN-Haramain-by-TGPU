@@ -1,3 +1,4 @@
+import { FamilyIbadahHub } from './FamilyIbadahHub';
 import { useEffect, useMemo, useState } from 'react';
 import { GlobalPilgrimHelp } from './global-pilgrim-help';
 import {
@@ -24,7 +25,7 @@ import {
 } from 'lucide-react';
 
 type Locale = 'ms' | 'ar' | 'en';
-type Page = 'home' | 'setup' | 'emergency' | 'translate' | 'ibadah' | 'notes' | 'currency';
+type Page = 'home' | 'setup' | 'emergency' | 'translate' | 'ibadah' | 'family-ibadah' | 'notes' | 'currency';
 type City = 'makkah' | 'madinah';
 type EmergencyKind = 'lost' | 'unwell' | 'bus';
 type CurrencyDirection = 'sar-myr' | 'myr-sar';
@@ -434,6 +435,7 @@ export default function App() {
       </section>
       <div className="grid featureGrid">
         <button type="button" className="feature translateFeature" onClick={() => setPage('translate')}><Languages/><strong>{t.translate}</strong><span>{t.translateHint}</span></button>
+        <button type="button" className="feature ibadahFeature" onClick={() => setPage('family-ibadah')}><UsersRound/><strong>{locale === 'ms' ? 'IBADAH & KELUARGA' : locale === 'ar' ? 'العبادة والأسرة' : 'IBADAH & FAMILY'}</strong><span>{locale === 'ms' ? 'Amal harian dan panggilan Google Meet' : locale === 'ar' ? 'العبادة اليومية ومكالمات الأسرة' : 'Daily worship and Google Meet family calls'}</span></button>
         <button type="button" className="feature ibadahFeature" onClick={() => setPage('ibadah')}><UserRound/><strong>{t.ibadah}</strong><span>{t.ibadahHint}</span></button>
         <button type="button" className="feature notesFeature" onClick={() => setPage('notes')}><NotebookPen/><strong>{t.notes}</strong><span>{t.notesHint}</span></button>
         <button type="button" className="feature currencyFeature" onClick={() => setPage('currency')}><Calculator/><strong>{t.currency}</strong><span>{t.currencyHint}</span></button>
@@ -482,6 +484,8 @@ export default function App() {
     {page === 'ibadah' && <main className="page">{back}<section className="sectionHead"><h1>{t.guideTitle}</h1><p>{t.guideNote}</p></section>
       <div className="guide">{GUIDE[locale].map((item, index) => <article key={item.title}><b>{index + 1}</b><div><h3>{item.title}</h3><p>{item.body}</p></div></article>)}</div>
     </main>}
+
+    {page === 'family-ibadah' && <main className="page">{back}<FamilyIbadahHub locale={locale}/></main>}
 
     {page === 'notes' && <main className="page">{back}<section className="sectionHead"><h1>{t.notesTitle}</h1><p>{t.notesIntro}</p></section>
       <section className="toolCard notesCard">
