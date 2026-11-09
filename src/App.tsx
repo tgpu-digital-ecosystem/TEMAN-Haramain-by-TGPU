@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 
 type Locale = 'ms' | 'ar' | 'en';
-type Page = 'home' | 'app' | 'investor-demo' | 'admin' | 'account' | 'setup' | 'emergency' | 'translate' | 'ibadah' | 'family-ibadah' | 'notes' | 'currency';
+type Page = 'home' | 'public-safety' | 'app' | 'investor-demo' | 'admin' | 'account' | 'setup' | 'emergency' | 'translate' | 'ibadah' | 'family-ibadah' | 'notes' | 'currency';
 type City = 'makkah' | 'madinah';
 type EmergencyKind = 'lost' | 'unwell' | 'bus';
 type CurrencyDirection = 'sar-myr' | 'myr-sar';
@@ -228,7 +228,7 @@ export default function App() {
     return () => { active = false; };
   }, [accountUser]);
   useEffect(() => {
-    const publicPages: Page[] = ['home','account'];
+    const publicPages: Page[] = ['home','account','public-safety'];
     if (!publicPages.includes(page) && !accountUser?.email_confirmed_at) setPage('home');
     if (demoActive && !demoApproved) { setDemoActive(false); setPage('home'); }
     if (page === 'admin' && !isTemanAdmin) setPage('home');
@@ -510,12 +510,24 @@ export default function App() {
           <p className="temanLandingNote">{locale === 'ar' ? 'التسجيل الأساسي مجاني. خدمات VIP اختيارية قيد التطوير.' : locale === 'en' ? 'Free essential access. Optional VIP services are planned.' : 'Akses asas percuma. Perkhidmatan VIP pilihan sedang dirancang.'}</p>
         </div><div className="temanLandingVisual" aria-hidden="true"><div className="temanLandingIcon">☪</div><strong>TEMAN Haramain</strong><span>Hajj · Umrah · Family</span></div></div>
       </section>
+      <button type="button" className="temanPublicSafetyLink" onClick={() => setPage('public-safety')}>{locale === 'ar' ? 'معلومات الطوارئ العامة (بدون حساب)' : locale === 'en' ? 'Public Emergency Information (No Account Required)' : 'Maklumat Kecemasan Awam (Tanpa Akaun)'}</button>
       <section className="temanLandingFeatures">
         <article><h3>{locale === 'ar' ? 'إرشاد الحجاج' : locale === 'en' ? 'Pilgrim Guidance' : 'Panduan Jemaah'}</h3><p>{locale === 'ar' ? 'معلومات عملية للحج والعمرة' : locale === 'en' ? 'Practical information for your journey' : 'Maklumat praktikal untuk perjalanan ibadah'}</p></article>
         <article><h3>{locale === 'ar' ? 'مساعدة عربية' : locale === 'en' ? 'Arabic Assistance' : 'Bantuan Bahasa Arab'}</h3><p>{locale === 'ar' ? 'عبارات مفيدة أثناء السفر' : locale === 'en' ? 'Helpful phrases for everyday situations' : 'Frasa berguna semasa perjalanan'}</p></article>
         <article><h3>{locale === 'ar' ? 'دعم الأسرة' : locale === 'en' ? 'Family Support' : 'Sokongan Keluarga'}</h3><p>{locale === 'ar' ? 'أدوات لتنظيم التواصل' : locale === 'en' ? 'Tools to help families stay organised' : 'Kemudahan untuk keluarga kekal teratur'}</p></article>
       </section>
       {isTemanAdmin && <button type="button" onClick={() => setPage('admin')}>{locale === 'ar' ? 'لوحة الإدارة' : locale === 'en' ? 'Admin Dashboard' : 'Papan Pemuka Admin'}</button>}
+    </main>}
+
+    {page === 'public-safety' && <main className="page">
+      <section className="sectionHead"><h1>{locale === 'ar' ? 'معلومات السلامة العامة' : locale === 'en' ? 'Public Emergency Information' : 'Maklumat Kecemasan Awam'}</h1>
+      <p>{locale === 'ar' ? 'هذه الصفحة متاحة للجميع دون تسجيل.' : locale === 'en' ? 'This basic safety page is accessible without registration.' : 'Halaman keselamatan asas ini boleh diakses tanpa pendaftaran.'}</p></section>
+      <div className="temanDemoGrid">
+        <article><h3>{locale === 'ar' ? 'خطر فوري' : locale === 'en' ? 'Immediate Danger' : 'Bahaya Segera'}</h3><p>{locale === 'ar' ? 'اطلب خدمات الطوارئ المحلية أو مساعدة موظفي الموقع فوراً.' : locale === 'en' ? 'Contact local emergency services or nearby authorised staff immediately.' : 'Hubungi perkhidmatan kecemasan tempatan atau petugas bertauliah berhampiran dengan segera.'}</p></article>
+        <article><h3>{locale === 'ar' ? 'إذا ضللت الطريق' : locale === 'en' ? 'If You Are Lost' : 'Jika Tersesat'}</h3><p>{locale === 'ar' ? 'ابق في مكان آمن واطلب مساعدة الموظفين الرسميين. شارك موقعك مع شخص موثوق إذا أمكن.' : locale === 'en' ? 'Move to a safe location, seek help from official staff and share your location with a trusted contact if possible.' : 'Pergi ke tempat selamat, minta bantuan petugas rasmi dan kongsi lokasi dengan kenalan dipercayai jika boleh.'}</p></article>
+        <article><h3>{locale === 'ar' ? 'حالة صحية طارئة' : locale === 'en' ? 'Medical Emergency' : 'Kecemasan Perubatan'}</h3><p>{locale === 'ar' ? 'اطلب المساعدة الطبية العاجلة. لا تنتظر استخدام التطبيق.' : locale === 'en' ? 'Seek urgent medical assistance. Do not wait for an app response.' : 'Dapatkan bantuan perubatan segera. Jangan tunggu respons aplikasi.'}</p></article>
+      </div>
+      <button type="button" className="temanDemoExit" onClick={() => setPage('home')}>{locale === 'ar' ? 'العودة للرئيسية' : locale === 'en' ? 'Back to Homepage' : 'Kembali ke Laman Utama'}</button>
     </main>}
 
     {page === 'investor-demo' && demoActive && demoApproved && <main className="page">
