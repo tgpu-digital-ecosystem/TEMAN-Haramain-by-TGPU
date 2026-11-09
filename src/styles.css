@@ -350,3 +350,12 @@ html,body,button,input,textarea,select{font-family:"Noto Kufi Arabic",Tahoma,san
 .temanAccountTabs button{flex:1;border:1px solid #abcbb8;background:#f0f6f2;color:#07583f}
 .temanAccountTabs button[aria-pressed=true]{background:#07583f;color:#fff}
 .temanAccountLink{background:transparent;border:0;text-decoration:underline;color:#07583f}
+
+.temanPublicHome{width:min(1200px,100%);margin:0 auto;padding:clamp(12px,3vw,28px)}
+.temanLandingFeatures{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:22px 0 38px}
+.temanLandingFeatures article{background:#f4f9f5;border:1px solid #d8e9df;border-radius:18px;padding:22px}
+.temanLandingFeatures h3{color:#07583f;margin:0 0 8px}
+.temanLandingFeatures p{color:#425d4e;margin:0}
+.temanAppChoices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.temanAppChoices button{min-height:84px;border:1px solid #b6d4c2;border-radius:16px;background:#f1f8f3;color:#07583f;font:inherit;font-weight:700;cursor:pointer}
+@media(max-width:680px){.temanLandingFeatures,.temanAppChoices{grid-template-columns:1fr}}
