@@ -336,7 +336,7 @@ export default function App() {
     setProfile(cleaned);
     setDraft(cleaned);
     if (!demoActive) localStorage.setItem('teman-profile', JSON.stringify(cleaned));
-    if (supabase && accountUser) {
+    if (!demoActive && supabase && accountUser) {
       const { error } = await supabase.from('teman_profiles').upsert({
         user_id: accountUser.id, display_name: cleaned.pilgrimName,
         preferred_language: locale, pilgrim_details: cleaned, updated_at: new Date().toISOString()
@@ -347,7 +347,7 @@ export default function App() {
   };
 
   const saveNotes = () => {
-    localStorage.setItem('teman-notes', notes);
+    if (!demoActive) localStorage.setItem('teman-notes', notes);
     setNoteSaved(true);
     window.setTimeout(() => setNoteSaved(false), 2200);
   };
@@ -489,7 +489,7 @@ export default function App() {
           <p>{locale === 'ar' ? 'مساعدة عملية للحجاج والمعتمرين والعائلات، باللغات الملايوية والإنجليزية والعربية.' : locale === 'en' ? 'Pilgrimage guidance, Arabic assistance and family-focused tools in one accessible experience.' : 'Panduan ibadah, bantuan bahasa Arab dan kemudahan keluarga dalam satu pengalaman yang mudah.'}</p>
           <div className="temanLandingActions">
             <button type="button" className="temanLandingPrimary" onClick={() => { setDemoActive(false);setAuthMode('register');setPage('account'); }}>{locale === 'ar' ? 'أنشئ ملفك الشخصي' : locale === 'en' ? 'Create Your Profile' : 'Cipta Profil Anda'}</button>
-            <button type="button" className="temanLandingSecondary" onClick={() => { setDemoActive(true);setProfile(EMPTY);setDraft(EMPTY);setPage('app'); }}>{locale === 'ar' ? 'جرب النسخة التجريبية' : locale === 'en' ? 'Try Demo' : 'Cuba Demo'}</button>
+            <button type="button" className="temanLandingSecondary" onClick={() => { setDemoActive(true);setProfile(EMPTY);setDraft(EMPTY);setNotes('');setPage('app'); }}>{locale === 'ar' ? 'جرب النسخة التجريبية' : locale === 'en' ? 'Try Demo' : 'Cuba Demo'}</button>
             <button type="button" className="temanLandingSecondary" onClick={() => {setDemoActive(false);setAuthMode('login');setPage('account');}}>{locale === 'ar' ? 'تسجيل الدخول' : locale === 'en' ? 'Sign In' : 'Log Masuk'}</button>
           </div>
           <p className="temanLandingNote">{locale === 'ar' ? 'التسجيل الأساسي مجاني. خدمات VIP اختيارية قيد التطوير.' : locale === 'en' ? 'Free essential access. Optional VIP services are planned.' : 'Akses asas percuma. Perkhidmatan VIP pilihan sedang dirancang.'}</p>
@@ -511,11 +511,11 @@ export default function App() {
         <button type="button" onClick={() => setPage('emergency')}>{locale === 'ar' ? 'مساعدة الطوارئ' : locale === 'en' ? 'Emergency Information' : 'Maklumat Kecemasan'}</button>
         <button type="button" onClick={() => setPage('ibadah')}>{locale === 'ar' ? 'العبادة' : locale === 'en' ? 'Ibadah' : 'Ibadah'}</button>
         <button type="button" onClick={() => {setDraft(profile);setPage('setup')}}>{locale === 'ar' ? 'ملف الحاج' : locale === 'en' ? 'Pilgrim Profile' : 'Profil Jemaah'}</button>
-        <button type="button" onClick={() => {setDemoActive(false);setPage('home')}}>{locale === 'ar' ? 'إنهاء العرض' : locale === 'en' ? 'Exit to Homepage' : 'Kembali ke Laman Utama'}</button>
+        <button type="button" onClick={() => {setDemoActive(false);setProfile(loadProfile());setNotes(localStorage.getItem('teman-notes') || '');setPage('home')}}>{locale === 'ar' ? 'إنهاء العرض' : locale === 'en' ? 'Exit to Homepage' : 'Kembali ke Laman Utama'}</button>
       </div>
     </main>}
 
-    {page === 'admin' && isTemanAdmin && <main className="page">{back}<section className="sectionHead"><h1>TEMUAN Admin · TGPU Digital</h1><p>{accountUser?.email}</p></section><p>{locale === 'ar' ? 'الوصول مقيد بمسؤولي TEMAN المعتمدين.' : locale === 'en' ? 'Restricted to approved TEMAN administrators. Account management tools are pending verification.' : 'Khusus untuk pentadbir TEMAN yang diluluskan. Alat pengurusan masih menunggu pengesahan.'}</p></main>}
+    {page === 'admin' && isTemanAdmin && <main className="page">{back}<section className="sectionHead"><h1>TEMAN Admin · TGPU Digital</h1><p>{accountUser?.email}</p></section><p>{locale === 'ar' ? 'الوصول مقيد بمسؤولي TEMAN المعتمدين.' : locale === 'en' ? 'Restricted to approved TEMAN administrators. Account management tools are pending verification.' : 'Khusus untuk pentadbir TEMAN yang diluluskan. Alat pengurusan masih menunggu pengesahan.'}</p></main>}
 
     {page === 'account' && <main className="page">{back}
       <section className="sectionHead"><h1>{locale === 'ar' ? 'حساب TEMAN' : locale === 'en' ? 'Your TEMAN Account' : 'Akaun TEMAN Anda'}</h1>
