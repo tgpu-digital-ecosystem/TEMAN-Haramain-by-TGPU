@@ -340,3 +340,13 @@ html,body,button,input,textarea,select{font-family:"Noto Kufi Arabic",Tahoma,san
 .temanLandingVisual span{font-size:13px}
 @media(max-width:650px){.temanLandingColumns{grid-template-columns:1fr}.temanLandingVisual{min-height:145px;max-width:none;transform:none}.temanLandingIcon{font-size:42px}.temanLandingHero{padding:24px}.temanLandingActions button{flex:1 1 190px}}
 @media(prefers-reduced-motion:reduce){.temanLandingHero *{scroll-behavior:auto}}
+
+.temanAccountPanel{display:flex;flex-direction:column;gap:16px;background:#fff;border:1px solid #d9e5dc;border-radius:22px;padding:clamp(18px,4vw,32px);box-shadow:0 12px 28px rgba(11,93,59,.08);max-width:540px;margin:20px auto}
+.temanAccountPanel label{display:flex;flex-direction:column;gap:6px;font-weight:700}
+.temanAccountPanel input{width:100%;min-height:48px;border:1px solid #a6bdb0;border-radius:12px;padding:12px;color:#173b2d;background:#fff}
+.temanAccountPanel button{min-height:46px;border-radius:12px;padding:11px 16px;cursor:pointer}
+.temanAccountPanel .temanLandingPrimary{border:0;background:#07583f;color:#fff;font-weight:700}
+.temanAccountTabs{display:flex;gap:10px}
+.temanAccountTabs button{flex:1;border:1px solid #abcbb8;background:#f0f6f2;color:#07583f}
+.temanAccountTabs button[aria-pressed=true]{background:#07583f;color:#fff}
+.temanAccountLink{background:transparent;border:0;text-decoration:underline;color:#07583f}
