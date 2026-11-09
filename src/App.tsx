@@ -193,6 +193,8 @@ export default function App() {
   const [page, setPage] = useState<Page>('home');
   const [accountUser, setAccountUser] = useState<User | null>(null);
   const [demoActive, setDemoActive] = useState(false);
+  const [demoApproved, setDemoApproved] = useState(false);
+  const [demoRequested, setDemoRequested] = useState(false);
   const [demoView, setDemoView] = useState<'client' | 'management'>('client');
   const [isTemanAdmin, setIsTemanAdmin] = useState(false);
   const [authMode, setAuthMode] = useState<'register' | 'login' | 'reset' | 'new-password'>('register');
@@ -216,11 +218,22 @@ export default function App() {
     return () => { active = false; };
   }, [accountUser]);
   useEffect(() => {
+    if (!supabase || !accountUser?.email_confirmed_at) { setDemoApproved(false); return; }
+    let active = true;
+    void supabase.from('teman_demo_access').select('user_id,expires_at,revoked_at').eq('user_id',accountUser.id).maybeSingle()
+      .then(({data,error}) => {
+        if (!active) return;
+        setDemoApproved(!error && !!data && !data.revoked_at && (!data.expires_at || new Date(data.expires_at).getTime() > Date.now()));
+      });
+    return () => { active = false; };
+  }, [accountUser]);
+  useEffect(() => {
     const publicPages: Page[] = ['home','account'];
-    if (!publicPages.includes(page) && !accountUser && !demoActive) setPage('home');
+    if (!publicPages.includes(page) && !accountUser?.email_confirmed_at) setPage('home');
+    if (demoActive && !demoApproved) { setDemoActive(false); setPage('home'); }
     if (page === 'admin' && !isTemanAdmin) setPage('home');
-    if (page === 'investor-demo' && !demoActive) setPage('home');
-  }, [page, accountUser, demoActive, isTemanAdmin]);
+    if (page === 'investor-demo' && (!demoActive || !demoApproved)) setPage('home');
+  }, [page, accountUser, demoActive, demoApproved, isTemanAdmin]);
   useEffect(() => {
     if (!accountUser || !supabase) return;
     let active = true;
@@ -491,7 +504,7 @@ export default function App() {
           <p>{locale === 'ar' ? 'مساعدة عملية للحجاج والمعتمرين والعائلات، باللغات الملايوية والإنجليزية والعربية.' : locale === 'en' ? 'Pilgrimage guidance, Arabic assistance and family-focused tools in one accessible experience.' : 'Panduan ibadah, bantuan bahasa Arab dan kemudahan keluarga dalam satu pengalaman yang mudah.'}</p>
           <div className="temanLandingActions">
             <button type="button" className="temanLandingPrimary" onClick={() => { setDemoActive(false);setAuthMode('register');setPage('account'); }}>{locale === 'ar' ? 'أنشئ ملفك الشخصي' : locale === 'en' ? 'Create Your Profile' : 'Cipta Profil Anda'}</button>
-            <button type="button" className="temanLandingSecondary" onClick={() => { setDemoActive(true);setDemoView('client');setProfile(EMPTY);setDraft(EMPTY);setNotes('');setPage('investor-demo'); }}>{locale === 'ar' ? 'جرب النسخة التجريبية' : locale === 'en' ? 'Try Demo' : 'Cuba Demo'}</button>
+            <button type="button" className="temanLandingSecondary" onClick={() => { if (!accountUser?.email_confirmed_at || !demoApproved) {setDemoRequested(true);setAuthMode('login');setPage('account');return;} setDemoActive(true);setDemoView('client');setProfile(EMPTY);setDraft(EMPTY);setNotes('');setPage('investor-demo'); }}>{locale === 'ar' ? 'جرب النسخة التجريبية' : locale === 'en' ? 'Try Demo' : 'Cuba Demo'}</button>
             <button type="button" className="temanLandingSecondary" onClick={() => {setDemoActive(false);setAuthMode('login');setPage('account');}}>{locale === 'ar' ? 'تسجيل الدخول' : locale === 'en' ? 'Sign In' : 'Log Masuk'}</button>
           </div>
           <p className="temanLandingNote">{locale === 'ar' ? 'التسجيل الأساسي مجاني. خدمات VIP اختيارية قيد التطوير.' : locale === 'en' ? 'Free essential access. Optional VIP services are planned.' : 'Akses asas percuma. Perkhidmatan VIP pilihan sedang dirancang.'}</p>
@@ -505,7 +518,7 @@ export default function App() {
       {isTemanAdmin && <button type="button" onClick={() => setPage('admin')}>{locale === 'ar' ? 'لوحة الإدارة' : locale === 'en' ? 'Admin Dashboard' : 'Papan Pemuka Admin'}</button>}
     </main>}
 
-    {page === 'investor-demo' && demoActive && <main className="page">
+    {page === 'investor-demo' && demoActive && demoApproved && <main className="page">
       <section className="sectionHead"><h1>{locale === 'ar' ? 'عرض TEMAN للمستثمرين' : locale === 'en' ? 'TEMAN Investor Demo' : 'Demo Pelabur TEMAN'}</h1>
         <p>{locale === 'ar' ? 'بيانات توضيحية فقط. لا توجد بيانات عملاء حقيقية.' : locale === 'en' ? 'Illustrative experience only. No real customer data, transactions or admin access.' : 'Paparan ilustrasi sahaja. Tiada data pelanggan sebenar, transaksi atau akses admin.'}</p></section>
       <div className="temanAccountTabs">
@@ -542,8 +555,10 @@ export default function App() {
     {page === 'account' && <main className="page">{back}
       <section className="sectionHead"><h1>{locale === 'ar' ? 'حساب TEMAN' : locale === 'en' ? 'Your TEMAN Account' : 'Akaun TEMAN Anda'}</h1>
       <p>{locale === 'ar' ? 'التسجيل مجاني. الخدمات الأساسية متاحة دون حساب.' : locale === 'en' ? 'Registration is free. Essential assistance remains available without an account.' : 'Pendaftaran percuma. Bantuan asas kekal tersedia tanpa akaun.'}</p></section>
+      {demoRequested && <p role="status">{locale === 'ar' ? 'يتطلب العرض موافقة المستثمر وتأكيد البريد الإلكتروني.' : locale === 'en' ? 'Investor demo requires a verified account and founder approval. Please sign in; access is not automatic.' : 'Demo pelabur memerlukan akaun disahkan dan kelulusan pengasas. Sila log masuk.'}</p>}
       {accountUser ? <div className="temanAccountPanel"><p>{accountUser.email}</p>
         <button type="button" className="temanLandingPrimary" onClick={() => {setDemoActive(false);setDraft(profile);setPage('app')}}>{locale === 'ar' ? 'افتح ملفك' : locale === 'en' ? 'Open Pilgrim Profile' : 'Buka Profil Jemaah'}</button>
+        {demoApproved && <button type="button" onClick={() => {setDemoActive(true);setDemoView('client');setProfile(EMPTY);setDraft(EMPTY);setNotes('');setPage('investor-demo')}}>{locale === 'ar' ? 'فتح العرض' : locale === 'en' ? 'Open Investor Demo' : 'Buka Demo Pelabur'}</button>}
         <button type="button" onClick={async () => { await supabase?.auth.signOut(); setPage('home'); }}>{locale === 'ar' ? 'تسجيل الخروج' : locale === 'en' ? 'Sign Out' : 'Log Keluar'}</button>
       </div> : <form className="temanAccountPanel" onSubmit={submitAccount}>
         <div className="temanAccountTabs">
