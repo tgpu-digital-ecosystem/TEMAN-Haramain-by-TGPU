@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 
 type Locale = 'ms' | 'ar' | 'en';
-type Page = 'home' | 'public-safety' | 'app' | 'investor-demo' | 'admin' | 'account' | 'setup' | 'emergency' | 'translate' | 'ibadah' | 'family-ibadah' | 'notes' | 'currency';
+type Page = 'home' | 'public-safety' | 'app' | 'investor-demo' | 'account' | 'setup' | 'emergency' | 'translate' | 'ibadah' | 'family-ibadah' | 'notes' | 'currency';
 type City = 'makkah' | 'madinah';
 type EmergencyKind = 'lost' | 'unwell' | 'bus';
 type CurrencyDirection = 'sar-myr' | 'myr-sar';
@@ -231,7 +231,6 @@ export default function App() {
     const publicPages: Page[] = ['home','account','public-safety'];
     if (!publicPages.includes(page) && !accountUser?.email_confirmed_at) setPage('home');
     if (demoActive && !demoApproved) { setDemoActive(false); setPage('home'); }
-    if (page === 'admin' && !isTemanAdmin) setPage('home');
     if (page === 'investor-demo' && (!demoActive || !demoApproved)) setPage('home');
   }, [page, accountUser, demoActive, demoApproved, isTemanAdmin]);
   useEffect(() => {
@@ -516,7 +515,7 @@ export default function App() {
         <article><h3>{locale === 'ar' ? 'مساعدة عربية' : locale === 'en' ? 'Arabic Assistance' : 'Bantuan Bahasa Arab'}</h3><p>{locale === 'ar' ? 'عبارات مفيدة أثناء السفر' : locale === 'en' ? 'Helpful phrases for everyday situations' : 'Frasa berguna semasa perjalanan'}</p></article>
         <article><h3>{locale === 'ar' ? 'دعم الأسرة' : locale === 'en' ? 'Family Support' : 'Sokongan Keluarga'}</h3><p>{locale === 'ar' ? 'أدوات لتنظيم التواصل' : locale === 'en' ? 'Tools to help families stay organised' : 'Kemudahan untuk keluarga kekal teratur'}</p></article>
       </section>
-      {isTemanAdmin && <button type="button" onClick={() => setPage('admin')}>{locale === 'ar' ? 'لوحة الإدارة' : locale === 'en' ? 'Admin Dashboard' : 'Papan Pemuka Admin'}</button>}
+      {isTemanAdmin && <a className="temanLandingSecondary" href="https://admin.tgpu.my/" rel="noopener noreferrer">{locale === 'ar' ? 'مركز إدارة TGPU' : locale === 'en' ? 'TGPU Central Admin' : 'Pusat Admin TGPU'}</a>}
     </main>}
 
     {page === 'public-safety' && <main className="page">
@@ -561,8 +560,6 @@ export default function App() {
         <button type="button" onClick={() => {setDemoActive(false);setProfile(loadProfile());setNotes(localStorage.getItem('teman-notes') || '');setPage('home')}}>{locale === 'ar' ? 'إنهاء العرض' : locale === 'en' ? 'Exit to Homepage' : 'Kembali ke Laman Utama'}</button>
       </div>
     </main>}
-
-    {page === 'admin' && isTemanAdmin && <main className="page">{back}<section className="sectionHead"><h1>TEMAN Admin · TGPU Digital</h1><p>{accountUser?.email}</p></section><p>{locale === 'ar' ? 'الوصول مقيد بمسؤولي TEMAN المعتمدين.' : locale === 'en' ? 'Restricted to approved TEMAN administrators. Account management tools are pending verification.' : 'Khusus untuk pentadbir TEMAN yang diluluskan. Alat pengurusan masih menunggu pengesahan.'}</p></main>}
 
     {page === 'account' && <main className="page">{back}
       <section className="sectionHead"><h1>{locale === 'ar' ? 'حساب TEMAN' : locale === 'en' ? 'Your TEMAN Account' : 'Akaun TEMAN Anda'}</h1>
