@@ -404,6 +404,22 @@ export default function App() {
     </header>
 
     {page === 'home' && <main className="page">
+      <section className="temanLandingHero" aria-label="TEMAN Haramain">
+        <div className="temanLandingBadge">TEMAN Haramain · TGPU Digital Ecosystem</div>
+        <div className="temanLandingColumns">
+          <div>
+            <h1>{locale === 'ar' ? 'أنشئ ملفك الشخصي' : locale === 'en' ? 'Create Your Profile' : 'Cipta Profil Anda'}</h1>
+            <h2>{locale === 'ar' ? 'رفيقك الرقمي للحج والعمرة' : locale === 'en' ? 'Your Digital Companion for Hajj & Umrah' : 'Teman Digital Haji & Umrah Anda'}</h2>
+            <p>{locale === 'ar' ? 'مساعدة باللغة العربية ومعلومات السفر والتواصل مع الأسرة في مكان واحد.' : locale === 'en' ? 'Arabic assistance, travel information and family connections in one accessible place.' : 'Bantuan bahasa Arab, maklumat perjalanan dan hubungan keluarga dalam satu tempat yang mudah digunakan.'}</p>
+            <div className="temanLandingActions">
+              <button type="button" className="temanLandingPrimary" onClick={() => {setDraft(profile);setPage('setup');}}>{locale === 'ar' ? 'أنشئ ملفك الشخصي' : locale === 'en' ? 'Create Your Profile' : 'Cipta Profil Anda'} →</button>
+              <button type="button" className="temanLandingSecondary" onClick={() => setPage('translate')}>{locale === 'ar' ? 'استكشف المزايا' : locale === 'en' ? 'Explore Features' : 'Terokai Ciri'}</button>
+            </div>
+            <p className="temanLandingNote">{locale === 'ar' ? 'المساعدة الأساسية مجانية. مزايا VIP الاختيارية قيد التخطيط.' : locale === 'en' ? 'Essential assistance is free. Optional VIP features are planned.' : 'Bantuan asas adalah percuma. Ciri VIP pilihan sedang dirancang.'}</p>
+          </div>
+          <div className="temanLandingVisual" aria-hidden="true"><div className="temanLandingIcon">☪</div><strong>TEMAN Haramain</strong><span>{locale === 'ar' ? 'مساعدة عربية · موقع · أسرة' : locale === 'en' ? 'Arabic Help · Location · Family' : 'Bantuan Arab · Lokasi · Keluarga'}</span></div>
+        </div>
+      </section>
       <section className="hero">
         <div className="heroTop"><span className="eyebrow">{t.subtitle}</span><span className={online ? 'networkStatus online' : 'networkStatus offline'}>{online ? <Wifi size={17}/> : <WifiOff size={17}/>} {online ? t.online : t.offlineReady}</span></div>
         <h1>{t.hello}{profile.preferredName ? `, ${profile.preferredName}` : ''}</h1><h2>{t.need}</h2><p>{t.hint}</p>
