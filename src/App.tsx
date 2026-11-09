@@ -616,6 +616,7 @@ export default function App() {
         <div className="contactRow"><button type="button" onClick={() => speak(emergencyMessage.ar)}><Volume2/> {t.speakArabic}</button><button type="button" disabled={!hotel && !hotelAddress} onClick={openHotel}><MapPin/> {t.openMap}</button></div>
         <div className="shareRow"><button type="button" onClick={shareEmergency}><Share2/> {t.shareDetails}</button><button type="button" onClick={copyEmergency}>{shareState === 'copied' ? <CheckCircle2/> : <Copy/>} {shareState === 'copied' ? t.copied : t.copyDetails}</button></div>
       </section>
+      <GlobalPilgrimHelp locale={locale} onPrepare={() => {setDraft(profile);setPage('setup')}} onIbadah={() => setPage('ibadah')} onPhrases={() => setPage('translate')} />
     </main>}
 
     {page === 'translate' && <main className="page">{back}<section className="sectionHead"><h1>{t.translateTitle}</h1><p>{t.translateIntro}</p></section>
