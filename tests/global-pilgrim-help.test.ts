@@ -7,8 +7,14 @@ const styles=readFileSync('src/global-pilgrim-help.css','utf8');
 
 describe('TEMAN multilingual guidance without compromising emergency safety',()=>{
  it('places global help after immediate emergency action',()=>{
-  expect(app.indexOf('className="action emergency"')).toBeGreaterThan(0);
-  expect(app.indexOf('<GlobalPilgrimHelp')).toBeGreaterThan(app.indexOf('className="action emergency"'));
+  const emergencyStart=app.indexOf("{page === 'emergency' &&");
+  const immediateAction=app.indexOf('className={`action emergencyChoice',emergencyStart);
+  const help=app.indexOf('<GlobalPilgrimHelp',emergencyStart);
+  const nextPage=app.indexOf("{page === 'translate' &&",emergencyStart);
+  expect(emergencyStart).toBeGreaterThan(0);
+  expect(immediateAction).toBeGreaterThan(emergencyStart);
+  expect(help).toBeGreaterThan(immediateAction);
+  expect(help).toBeLessThan(nextPage);
  });
  it('links only to an independently named official AI source and keeps private profile separate',()=>{
   expect(help).toContain('https://my.gov.sa/en/services/2173544');

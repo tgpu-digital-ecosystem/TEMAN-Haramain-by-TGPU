@@ -318,3 +318,55 @@ html,body,button,input,textarea,select{font-family:"Noto Kufi Arabic",Tahoma,san
 .travelIndustryGateway strong,.travelIndustryGateway span{display:block}
 .travelIndustryGateway>div{display:flex;flex-wrap:wrap;gap:10px 18px}
 .travelIndustryGateway a{display:inline-block;overflow-wrap:anywhere;line-height:1.5}
+
+
+/* TEMAN landing hero: responsive and RTL-compatible, without replacing safety tools */
+.temanLandingHero{position:relative;overflow:hidden;border-radius:24px;padding:clamp(22px,5vw,54px);margin:12px 0 20px;background:linear-gradient(115deg,#003f2e 0%,#086748 68%,#0e8057 100%);color:white;box-shadow:0 16px 35px rgba(0,59,39,.15)}
+.temanLandingHero:before{content:"";position:absolute;inset:auto -8% -75% 35%;height:130%;border:2px solid rgba(218,181,82,.28);border-radius:50%;pointer-events:none}
+.temanLandingBadge{display:inline-block;border:1px solid rgba(255,255,255,.3);padding:7px 13px;border-radius:30px;font-size:12px;letter-spacing:.02em}
+.temanLandingColumns{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(190px,.75fr);gap:24px;align-items:center;position:relative}
+.temanLandingHero h1{font-size:clamp(30px,5vw,58px);line-height:1.1;color:#f2ca67;margin:22px 0 8px}
+.temanLandingHero h2{font-size:clamp(21px,3vw,34px);line-height:1.25;color:#fff;margin:0 0 16px}
+.temanLandingHero p{font-size:clamp(14px,1.5vw,18px);line-height:1.65;color:#f2f8f5;max-width:580px}
+.temanLandingActions{display:flex;gap:12px;flex-wrap:wrap;margin:24px 0 10px}
+.temanLandingActions button{cursor:pointer;border-radius:40px;padding:14px 22px;font:inherit;font-weight:700;min-height:48px}
+.temanLandingPrimary{background:#f2c85d;color:#16382c;border:0}
+.temanLandingSecondary{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.8)}
+.temanLandingActions button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.temanLandingHero .temanLandingNote{font-size:13px;color:#e5f1e9}
+.temanLandingVisual{min-height:260px;max-width:280px;width:100%;justify-self:center;border-radius:28px;border:7px solid #18342d;background:linear-gradient(180deg,#f5f9f5,#e4f3e8);box-shadow:10px 20px 28px rgba(0,0,0,.24);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:#07563e;text-align:center;padding:20px;transform:rotate(4deg)}
+.temanLandingIcon{font-size:75px;color:#c5a346}
+.temanLandingVisual strong{font-size:24px}
+.temanLandingVisual span{font-size:13px}
+@media(max-width:650px){.temanLandingColumns{grid-template-columns:1fr}.temanLandingVisual{min-height:145px;max-width:none;transform:none}.temanLandingIcon{font-size:42px}.temanLandingHero{padding:24px}.temanLandingActions button{flex:1 1 190px}}
+@media(prefers-reduced-motion:reduce){.temanLandingHero *{scroll-behavior:auto}}
+
+.temanAccountPanel{display:flex;flex-direction:column;gap:16px;background:#fff;border:1px solid #d9e5dc;border-radius:22px;padding:clamp(18px,4vw,32px);box-shadow:0 12px 28px rgba(11,93,59,.08);max-width:540px;margin:20px auto}
+.temanAccountPanel label{display:flex;flex-direction:column;gap:6px;font-weight:700}
+.temanAccountPanel input{width:100%;min-height:48px;border:1px solid #a6bdb0;border-radius:12px;padding:12px;color:#173b2d;background:#fff}
+.temanAccountPanel button{min-height:46px;border-radius:12px;padding:11px 16px;cursor:pointer}
+.temanAccountPanel .temanLandingPrimary{border:0;background:#07583f;color:#fff;font-weight:700}
+.temanAccountTabs{display:flex;gap:10px}
+.temanAccountTabs button{flex:1;border:1px solid #abcbb8;background:#f0f6f2;color:#07583f}
+.temanAccountTabs button[aria-pressed=true]{background:#07583f;color:#fff}
+.temanAccountLink{background:transparent;border:0;text-decoration:underline;color:#07583f}
+
+.temanPublicHome{width:min(1200px,100%);margin:0 auto;padding:clamp(12px,3vw,28px)}
+.temanLandingFeatures{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:22px 0 38px}
+.temanLandingFeatures article{background:#f4f9f5;border:1px solid #d8e9df;border-radius:18px;padding:22px}
+.temanLandingFeatures h3{color:#07583f;margin:0 0 8px}
+.temanLandingFeatures p{color:#425d4e;margin:0}
+.temanAppChoices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.temanAppChoices button{min-height:84px;border:1px solid #b6d4c2;border-radius:16px;background:#f1f8f3;color:#07583f;font:inherit;font-weight:700;cursor:pointer}
+@media(max-width:680px){.temanLandingFeatures,.temanAppChoices{grid-template-columns:1fr}}
+
+.temanDemoGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:20px 0}
+.temanDemoGrid article{border:1px solid #d3e4d8;background:#f7faf7;border-radius:18px;padding:22px}
+.temanDemoGrid h3{margin:0 0 10px;color:#07583f}
+.temanDemoGrid p{line-height:1.55}
+.temanDemoGrid button,.temanDemoExit{border:0;border-radius:12px;background:#07583f;color:#fff;min-height:44px;padding:12px 18px;cursor:pointer;font:inherit;font-weight:700}
+.temanDemoExit{margin:12px 0 30px}
+@media(max-width:650px){.temanDemoGrid{grid-template-columns:1fr}}
+
+.temanPublicSafetyLink{display:block;width:100%;margin:16px 0;padding:15px 20px;border:1px solid #b7d8c3;border-radius:14px;background:#edf7f0;color:#07583f;font:inherit;font-weight:700;cursor:pointer;text-align:center}
+.temanPublicSafetyLink:focus-visible{outline:3px solid #07583f;outline-offset:3px}
