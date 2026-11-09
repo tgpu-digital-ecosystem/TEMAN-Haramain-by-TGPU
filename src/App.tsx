@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 
 type Locale = 'ms' | 'ar' | 'en';
-type Page = 'home' | 'account' | 'setup' | 'emergency' | 'translate' | 'ibadah' | 'family-ibadah' | 'notes' | 'currency';
+type Page = 'home' | 'app' | 'admin' | 'account' | 'setup' | 'emergency' | 'translate' | 'ibadah' | 'family-ibadah' | 'notes' | 'currency';
 type City = 'makkah' | 'madinah';
 type EmergencyKind = 'lost' | 'unwell' | 'bus';
 type CurrencyDirection = 'sar-myr' | 'myr-sar';
@@ -192,6 +192,8 @@ export default function App() {
   const [locale, setLocale] = useState<Locale>(() => (localStorage.getItem('teman-locale') as Locale) || 'ms');
   const [page, setPage] = useState<Page>('home');
   const [accountUser, setAccountUser] = useState<User | null>(null);
+  const [demoActive, setDemoActive] = useState(false);
+  const [isTemanAdmin, setIsTemanAdmin] = useState(false);
   const [authMode, setAuthMode] = useState<'register' | 'login' | 'reset' | 'new-password'>('register');
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
@@ -205,6 +207,18 @@ export default function App() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => { setAccountUser(session?.user ?? null); if (event === 'PASSWORD_RECOVERY') { setAuthMode('new-password'); setPage('account'); } });
     return () => { mounted = false; subscription.unsubscribe(); };
   }, []);
+  useEffect(() => {
+    if (!supabase || !accountUser) { setIsTemanAdmin(false); return; }
+    let active = true;
+    void supabase.from('teman_admins').select('user_id').eq('user_id', accountUser.id).maybeSingle()
+      .then(({ data, error }) => { if (active) setIsTemanAdmin(!error && !!data); });
+    return () => { active = false; };
+  }, [accountUser]);
+  useEffect(() => {
+    const publicPages: Page[] = ['home','account'];
+    if (!publicPages.includes(page) && !accountUser && !demoActive) setPage('home');
+    if (page === 'admin' && !isTemanAdmin) setPage('home');
+  }, [page, accountUser, demoActive, isTemanAdmin]);
   useEffect(() => {
     if (!accountUser || !supabase) return;
     let active = true;
@@ -288,7 +302,7 @@ export default function App() {
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email: authEmail.trim(), password: authPassword });
         if (error) throw error;
-        setPage('setup');
+        setDemoActive(false);setPage('app');
       }
     } catch (error) { setAuthMessage(error instanceof Error ? error.message : 'Account request failed'); }
     finally { setAuthBusy(false); }
@@ -321,7 +335,7 @@ export default function App() {
     };
     setProfile(cleaned);
     setDraft(cleaned);
-    localStorage.setItem('teman-profile', JSON.stringify(cleaned));
+    if (!demoActive) localStorage.setItem('teman-profile', JSON.stringify(cleaned));
     if (supabase && accountUser) {
       const { error } = await supabase.from('teman_profiles').upsert({
         user_id: accountUser.id, display_name: cleaned.pilgrimName,
@@ -329,7 +343,7 @@ export default function App() {
       }, { onConflict: 'user_id' });
       if (error) { setAuthMessage(error.message); setPage('account'); return; }
     }
-    setPage('home');
+    setPage('app');
   };
 
   const saveNotes = () => {
@@ -466,67 +480,48 @@ export default function App() {
       </div>
     </header>
 
-    {page === 'home' && <main className="page">
+    {page === 'home' && <main className="temanPublicHome">
       <section className="temanLandingHero" aria-label="TEMAN Haramain">
         <div className="temanLandingBadge">TEMAN Haramain · TGPU Digital Ecosystem</div>
-        <div className="temanLandingColumns">
-          <div>
-            <h1>{locale === 'ar' ? 'أنشئ ملفك الشخصي' : locale === 'en' ? 'Create Your Profile' : 'Cipta Profil Anda'}</h1>
-            <h2>{locale === 'ar' ? 'رفيقك الرقمي للحج والعمرة' : locale === 'en' ? 'Your Digital Companion for Hajj & Umrah' : 'Teman Digital Haji & Umrah Anda'}</h2>
-            <p>{locale === 'ar' ? 'مساعدة باللغة العربية ومعلومات السفر والتواصل مع الأسرة في مكان واحد.' : locale === 'en' ? 'Arabic assistance, travel information and family connections in one accessible place.' : 'Bantuan bahasa Arab, maklumat perjalanan dan hubungan keluarga dalam satu tempat yang mudah digunakan.'}</p>
-            <div className="temanLandingActions">
-              <button type="button" className="temanLandingPrimary" onClick={() => {setAuthMode('register');setAuthMessage('');setPage('account');}}>{locale === 'ar' ? 'أنشئ ملفك الشخصي' : locale === 'en' ? 'Create Your Profile' : 'Cipta Profil Anda'} →</button>
-              <button type="button" className="temanLandingSecondary" onClick={() => setPage('translate')}>{locale === 'ar' ? 'استكشف المزايا' : locale === 'en' ? 'Explore Features' : 'Terokai Ciri'}</button>
-            </div>
-            <p className="temanLandingNote">{locale === 'ar' ? 'المساعدة الأساسية مجانية. مزايا VIP الاختيارية قيد التخطيط.' : locale === 'en' ? 'Essential assistance is free. Optional VIP features are planned.' : 'Bantuan asas adalah percuma. Ciri VIP pilihan sedang dirancang.'}</p>
+        <div className="temanLandingColumns"><div>
+          <h1>{locale === 'ar' ? 'رحلتك المباركة تبدأ هنا' : locale === 'en' ? 'Your Sacred Journey Starts Here' : 'Perjalanan Ibadah Anda Bermula Di Sini'}</h1>
+          <h2>{locale === 'ar' ? 'رفيقك الرقمي للحج والعمرة' : locale === 'en' ? 'Your Digital Companion for Hajj & Umrah' : 'Teman Digital Haji & Umrah Anda'}</h2>
+          <p>{locale === 'ar' ? 'مساعدة عملية للحجاج والمعتمرين والعائلات، باللغات الملايوية والإنجليزية والعربية.' : locale === 'en' ? 'Pilgrimage guidance, Arabic assistance and family-focused tools in one accessible experience.' : 'Panduan ibadah, bantuan bahasa Arab dan kemudahan keluarga dalam satu pengalaman yang mudah.'}</p>
+          <div className="temanLandingActions">
+            <button type="button" className="temanLandingPrimary" onClick={() => { setDemoActive(false);setAuthMode('register');setPage('account'); }}>{locale === 'ar' ? 'أنشئ ملفك الشخصي' : locale === 'en' ? 'Create Your Profile' : 'Cipta Profil Anda'}</button>
+            <button type="button" className="temanLandingSecondary" onClick={() => { setDemoActive(true);setProfile(EMPTY);setDraft(EMPTY);setPage('app'); }}>{locale === 'ar' ? 'جرب النسخة التجريبية' : locale === 'en' ? 'Try Demo' : 'Cuba Demo'}</button>
+            <button type="button" className="temanLandingSecondary" onClick={() => {setDemoActive(false);setAuthMode('login');setPage('account');}}>{locale === 'ar' ? 'تسجيل الدخول' : locale === 'en' ? 'Sign In' : 'Log Masuk'}</button>
           </div>
-          <div className="temanLandingVisual" aria-hidden="true"><div className="temanLandingIcon">☪</div><strong>TEMAN Haramain</strong><span>{locale === 'ar' ? 'مساعدة عربية · موقع · أسرة' : locale === 'en' ? 'Arabic Help · Location · Family' : 'Bantuan Arab · Lokasi · Keluarga'}</span></div>
-        </div>
+          <p className="temanLandingNote">{locale === 'ar' ? 'التسجيل الأساسي مجاني. خدمات VIP اختيارية قيد التطوير.' : locale === 'en' ? 'Free essential access. Optional VIP services are planned.' : 'Akses asas percuma. Perkhidmatan VIP pilihan sedang dirancang.'}</p>
+        </div><div className="temanLandingVisual" aria-hidden="true"><div className="temanLandingIcon">☪</div><strong>TEMAN Haramain</strong><span>Hajj · Umrah · Family</span></div></div>
       </section>
-      <section className="hero">
-        <div className="heroTop"><span className="eyebrow">{t.subtitle}</span><span className={online ? 'networkStatus online' : 'networkStatus offline'}>{online ? <Wifi size={17}/> : <WifiOff size={17}/>} {online ? t.online : t.offlineReady}</span></div>
-        <h1>{t.hello}{profile.preferredName ? `, ${profile.preferredName}` : ''}</h1><h2>{t.need}</h2><p>{t.hint}</p>
+      <section className="temanLandingFeatures">
+        <article><h3>{locale === 'ar' ? 'إرشاد الحجاج' : locale === 'en' ? 'Pilgrim Guidance' : 'Panduan Jemaah'}</h3><p>{locale === 'ar' ? 'معلومات عملية للحج والعمرة' : locale === 'en' ? 'Practical information for your journey' : 'Maklumat praktikal untuk perjalanan ibadah'}</p></article>
+        <article><h3>{locale === 'ar' ? 'مساعدة عربية' : locale === 'en' ? 'Arabic Assistance' : 'Bantuan Bahasa Arab'}</h3><p>{locale === 'ar' ? 'عبارات مفيدة أثناء السفر' : locale === 'en' ? 'Helpful phrases for everyday situations' : 'Frasa berguna semasa perjalanan'}</p></article>
+        <article><h3>{locale === 'ar' ? 'دعم الأسرة' : locale === 'en' ? 'Family Support' : 'Sokongan Keluarga'}</h3><p>{locale === 'ar' ? 'أدوات لتنظيم التواصل' : locale === 'en' ? 'Tools to help families stay organised' : 'Kemudahan untuk keluarga kekal teratur'}</p></article>
       </section>
-      <div className={ready ? 'readiness ready' : 'readiness'} role="status" aria-live="polite"><ShieldCheck size={22}/><div><strong>{ready ? t.ready : t.notReady}</strong><span>{ready ? t.saved : t.setupHint}</span></div></div>
-      {citySelector}
-      <button type="button" className="action emergency" onClick={() => setPage('emergency')}><AlertTriangle size={32}/><div><strong>{t.help}</strong><span>{t.helpHint}</span></div><b aria-hidden="true">→</b></button>
-      <div className="two">
-        <button type="button" className="action" onClick={openHotel}><Building2 size={28}/><div><strong>{t.hotel}</strong><span>{hotel || t.hotelHint}</span></div><b aria-hidden="true">→</b></button>
-        <button type="button" className="action" onClick={() => { setEmergencyKind('bus'); setPage('emergency'); }}><UsersRound size={28}/><div><strong>{t.group}</strong><span>{profile.groupCode || profile.busNumber || t.groupHint}</span></div><b aria-hidden="true">→</b></button>
-      </div>
-      <section className="mobileUtilityPanel" aria-label={t.toolsTitle}>
-        <div className="mobileUtilityHead"><strong>{t.toolsTitle}</strong><span>{t.toolsHint}</span></div>
-        <div className="mobileUtilityGrid">
-          <button type="button" onClick={() => openUtility('.temanOfflineCardTrigger')}><ShieldCheck size={22}/><span>{t.offlineCardTool}</span></button>
-          <button type="button" onClick={() => openUtility('.temanOfflineMapTrigger')}><MapPin size={22}/><span>{t.offlineMapTool}</span></button>
-          <button type="button" onClick={() => openUtility('.travelReadinessTrigger')}><CheckCircle2 size={22}/><span>{t.readinessTool}</span></button>
-          <button type="button" onClick={() => openUtility('.temanReminderTrigger')}><NotebookPen size={22}/><span>{t.remindersTool}</span></button>
-        </div>
-      </section>
-      <GlobalPilgrimHelp locale={locale} onPrepare={() => {setDraft(profile);setPage('setup');}} onIbadah={() => setPage('ibadah')} onPhrases={() => setPage('translate')}/>
-      <section className="travelIndustryGateway" aria-label={locale === 'ar' ? 'خدمات قطاع الحج والعمرة' : locale === 'ms' ? 'Industri Umrah dan Haji' : 'Umrah and Hajj industry'}>
-        <strong>{locale === 'ar' ? 'قطاع الحج والعمرة' : locale === 'ms' ? 'Industri Umrah dan Haji' : 'Umrah & Hajj industry'}</strong>
-        <span>{locale === 'ar' ? 'يمكن لوكالات السفر ومقدمي الخدمات الأرضية في السعودية وشركات خدمة الحجاج والمعتمرين التعرف على مسار التعاون التجاري مع TGPU في السعودية والخليج.' : locale === 'ms' ? 'Agensi pelancongan, pengendali di Arab Saudi dan penyedia perkhidmatan jemaah boleh meneroka kerjasama perniagaan TGPU di Saudi dan GCC.' : 'Travel agencies, Saudi ground operators and pilgrimage-service companies can explore the TGPU Saudi/GCC business pathway.'}</span>
-        <div>
-          <a href="https://gccmarketentry.me/?utm_source=teman.tgpu.my&utm_medium=referral&utm_campaign=umrah_hajj_industry" target="_blank" rel="noopener noreferrer">{locale === "ar" ? "موارد دخول أسواق الخليج" : locale === "ms" ? "Sumber pasaran GCC" : "GCC market-entry resources"}</a>
-          <a href="https://connect.tgpugulf.com/?utm_source=teman.tgpu.my&utm_medium=referral&utm_campaign=umrah_hajj_industry&utm_content=teman_home" target="_blank" rel="noopener noreferrer">{locale === "ar" ? "استفسار عن الشراكات التجارية" : locale === "ms" ? "Pertanyaan kerjasama perniagaan" : "Business partnership enquiry"}</a>
-        </div>
-      </section>
-      <div className="grid featureGrid">
-        <button type="button" className="feature translateFeature" onClick={() => setPage('translate')}><Languages/><strong>{t.translate}</strong><span>{t.translateHint}</span></button>
-        <button type="button" className="feature ibadahFeature" onClick={() => setPage('family-ibadah')}><UsersRound/><strong>{locale === 'ms' ? 'IBADAH & KELUARGA' : locale === 'ar' ? 'العبادة والأسرة' : 'IBADAH & FAMILY'}</strong><span>{locale === 'ms' ? 'Amal harian dan panggilan Google Meet' : locale === 'ar' ? 'العبادة اليومية ومكالمات الأسرة' : 'Daily worship and Google Meet family calls'}</span></button>
-        <button type="button" className="feature ibadahFeature" onClick={() => setPage('ibadah')}><UserRound/><strong>{t.ibadah}</strong><span>{t.ibadahHint}</span></button>
-        <button type="button" className="feature notesFeature" onClick={() => setPage('notes')}><NotebookPen/><strong>{t.notes}</strong><span>{t.notesHint}</span></button>
-        <button type="button" className="feature currencyFeature" onClick={() => setPage('currency')}><Calculator/><strong>{t.currency}</strong><span>{t.currencyHint}</span></button>
-        <button type="button" className="feature profileFeature" onClick={() => { setDraft(profile); setPage('setup'); }}><ShieldCheck/><strong>{t.setup}</strong><span>{t.setupHint}</span></button>
+      {isTemanAdmin && <button type="button" onClick={() => setPage('admin')}>{locale === 'ar' ? 'لوحة الإدارة' : locale === 'en' ? 'Admin Dashboard' : 'Papan Pemuka Admin'}</button>}
+    </main>}
+
+    {page === 'app' && <main className="page">
+      <section className="sectionHead"><h1>{locale === 'ar' ? 'مساعد الحجاج' : locale === 'en' ? 'Pilgrim Companion' : 'Teman Jemaah'}</h1>
+      <p>{demoActive ? (locale === 'ar' ? 'وضع تجريبي — لا تستخدم بيانات حقيقية.' : locale === 'en' ? 'Demo mode — do not enter real personal information.' : 'Mod demo — jangan masukkan maklumat peribadi sebenar.') : (locale === 'ar' ? 'مرحباً بعودتك' : locale === 'en' ? 'Welcome back' : 'Selamat kembali')}</p></section>
+      <div className="temanAppChoices">
+        <button type="button" onClick={() => setPage('translate')}>{locale === 'ar' ? 'مساعدة عربية' : locale === 'en' ? 'Arabic Assistance' : 'Bantuan Arab'}</button>
+        <button type="button" onClick={() => setPage('emergency')}>{locale === 'ar' ? 'مساعدة الطوارئ' : locale === 'en' ? 'Emergency Information' : 'Maklumat Kecemasan'}</button>
+        <button type="button" onClick={() => setPage('ibadah')}>{locale === 'ar' ? 'العبادة' : locale === 'en' ? 'Ibadah' : 'Ibadah'}</button>
+        <button type="button" onClick={() => {setDraft(profile);setPage('setup')}}>{locale === 'ar' ? 'ملف الحاج' : locale === 'en' ? 'Pilgrim Profile' : 'Profil Jemaah'}</button>
+        <button type="button" onClick={() => {setDemoActive(false);setPage('home')}}>{locale === 'ar' ? 'إنهاء العرض' : locale === 'en' ? 'Exit to Homepage' : 'Kembali ke Laman Utama'}</button>
       </div>
     </main>}
+
+    {page === 'admin' && isTemanAdmin && <main className="page">{back}<section className="sectionHead"><h1>TEMUAN Admin · TGPU Digital</h1><p>{accountUser?.email}</p></section><p>{locale === 'ar' ? 'الوصول مقيد بمسؤولي TEMAN المعتمدين.' : locale === 'en' ? 'Restricted to approved TEMAN administrators. Account management tools are pending verification.' : 'Khusus untuk pentadbir TEMAN yang diluluskan. Alat pengurusan masih menunggu pengesahan.'}</p></main>}
 
     {page === 'account' && <main className="page">{back}
       <section className="sectionHead"><h1>{locale === 'ar' ? 'حساب TEMAN' : locale === 'en' ? 'Your TEMAN Account' : 'Akaun TEMAN Anda'}</h1>
       <p>{locale === 'ar' ? 'التسجيل مجاني. الخدمات الأساسية متاحة دون حساب.' : locale === 'en' ? 'Registration is free. Essential assistance remains available without an account.' : 'Pendaftaran percuma. Bantuan asas kekal tersedia tanpa akaun.'}</p></section>
       {accountUser ? <div className="temanAccountPanel"><p>{accountUser.email}</p>
-        <button type="button" className="temanLandingPrimary" onClick={() => {setDraft(profile);setPage('setup')}}>{locale === 'ar' ? 'افتح ملفك' : locale === 'en' ? 'Open Pilgrim Profile' : 'Buka Profil Jemaah'}</button>
+        <button type="button" className="temanLandingPrimary" onClick={() => {setDemoActive(false);setDraft(profile);setPage('app')}}>{locale === 'ar' ? 'افتح ملفك' : locale === 'en' ? 'Open Pilgrim Profile' : 'Buka Profil Jemaah'}</button>
         <button type="button" onClick={async () => { await supabase?.auth.signOut(); setPage('home'); }}>{locale === 'ar' ? 'تسجيل الخروج' : locale === 'en' ? 'Sign Out' : 'Log Keluar'}</button>
       </div> : <form className="temanAccountPanel" onSubmit={submitAccount}>
         <div className="temanAccountTabs">
@@ -605,6 +600,6 @@ export default function App() {
         <div className="currencyResult" aria-live="polite"><span>{t.resultLabel}</span><strong>{currencyResult === null ? '—' : currencyResult.toLocaleString(locale === 'ar' ? 'ar-SA' : locale === 'ms' ? 'ms-MY' : 'en-US', { maximumFractionDigits: 2 })}</strong><b>{currencyDirection === 'sar-myr' ? 'MYR' : 'SAR'}</b></div>
       </section>
     </main>}
-    {bottomNav}
+    {(accountUser || demoActive) && page !== 'home' && page !== 'account' && page !== 'admin' && bottomNav}
   </div>;
 }
