@@ -211,7 +211,7 @@ export default function App() {
     return () => { mounted = false; subscription.unsubscribe(); };
   }, []);
   useEffect(() => {
-    if (!supabase || !accountUser) { setIsTemanAdmin(false); return; }
+    if (!supabase || !accountUser?.email_confirmed_at) { setIsTemanAdmin(false); return; }
     let active = true;
     void supabase.from('teman_admins').select('user_id').eq('user_id', accountUser.id).maybeSingle()
       .then(({ data, error }) => { if (active) setIsTemanAdmin(!error && !!data); });
@@ -235,7 +235,7 @@ export default function App() {
     if (page === 'investor-demo' && (!demoActive || !demoApproved)) setPage('home');
   }, [page, accountUser, demoActive, demoApproved, isTemanAdmin]);
   useEffect(() => {
-    if (!accountUser || !supabase) return;
+    if (!accountUser?.email_confirmed_at || !supabase || demoActive) return;
     let active = true;
     void supabase.from('teman_profiles').select('pilgrim_details').eq('user_id', accountUser.id).maybeSingle()
       .then(({ data, error }) => {
@@ -244,7 +244,7 @@ export default function App() {
         setProfile(remote); setDraft(remote);
       });
     return () => { active = false; };
-  }, [accountUser]);
+  }, [accountUser, demoActive]);
   const [profile, setProfile] = useState<Profile>(loadProfile);
   const [draft, setDraft] = useState<Profile>(profile);
   const [city, setCityState] = useState<City>(loadCity);
@@ -350,8 +350,8 @@ export default function App() {
     };
     setProfile(cleaned);
     setDraft(cleaned);
-    if (!demoActive) localStorage.setItem('teman-profile', JSON.stringify(cleaned));
-    if (!demoActive && supabase && accountUser) {
+    if (!demoActive && accountUser?.email_confirmed_at) localStorage.setItem('teman-profile', JSON.stringify(cleaned));
+    if (!demoActive && supabase && accountUser?.email_confirmed_at) {
       const { error } = await supabase.from('teman_profiles').upsert({
         user_id: accountUser.id, display_name: cleaned.pilgrimName,
         preferred_language: locale, pilgrim_details: cleaned, updated_at: new Date().toISOString()
@@ -568,7 +568,7 @@ export default function App() {
       <section className="sectionHead"><h1>{locale === 'ar' ? 'حساب TEMAN' : locale === 'en' ? 'Your TEMAN Account' : 'Akaun TEMAN Anda'}</h1>
       <p>{locale === 'ar' ? 'التسجيل مجاني. الخدمات الأساسية متاحة دون حساب.' : locale === 'en' ? 'Registration is free. Essential assistance remains available without an account.' : 'Pendaftaran percuma. Bantuan asas kekal tersedia tanpa akaun.'}</p></section>
       {demoRequested && <p role="status">{locale === 'ar' ? 'يتطلب العرض موافقة المستثمر وتأكيد البريد الإلكتروني.' : locale === 'en' ? 'Investor demo requires a verified account and founder approval. Please sign in; access is not automatic.' : 'Demo pelabur memerlukan akaun disahkan dan kelulusan pengasas. Sila log masuk.'}</p>}
-      {accountUser ? <div className="temanAccountPanel"><p>{accountUser.email}</p>
+      {accountUser?.email_confirmed_at ? <div className="temanAccountPanel"><p>{accountUser.email}</p>
         <button type="button" className="temanLandingPrimary" onClick={() => {setDemoActive(false);setDraft(profile);setPage('app')}}>{locale === 'ar' ? 'افتح ملفك' : locale === 'en' ? 'Open Pilgrim Profile' : 'Buka Profil Jemaah'}</button>
         {demoApproved && <button type="button" onClick={() => {setDemoActive(true);setDemoView('client');setProfile(EMPTY);setDraft(EMPTY);setNotes('');setPage('investor-demo')}}>{locale === 'ar' ? 'فتح العرض' : locale === 'en' ? 'Open Investor Demo' : 'Buka Demo Pelabur'}</button>}
         <button type="button" onClick={async () => { await supabase?.auth.signOut(); setPage('home'); }}>{locale === 'ar' ? 'تسجيل الخروج' : locale === 'en' ? 'Sign Out' : 'Log Keluar'}</button>
