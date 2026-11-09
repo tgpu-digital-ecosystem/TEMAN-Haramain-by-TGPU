@@ -1,3 +1,5 @@
+import { supabase } from './teman-supabase';
+import type { User } from '@supabase/supabase-js';
 import { FamilyIbadahHub } from './FamilyIbadahHub';
 import { useEffect, useMemo, useState } from 'react';
 import { GlobalPilgrimHelp } from './global-pilgrim-help';
@@ -25,7 +27,7 @@ import {
 } from 'lucide-react';
 
 type Locale = 'ms' | 'ar' | 'en';
-type Page = 'home' | 'setup' | 'emergency' | 'translate' | 'ibadah' | 'family-ibadah' | 'notes' | 'currency';
+type Page = 'home' | 'account' | 'setup' | 'emergency' | 'translate' | 'ibadah' | 'family-ibadah' | 'notes' | 'currency';
 type City = 'makkah' | 'madinah';
 type EmergencyKind = 'lost' | 'unwell' | 'bus';
 type CurrencyDirection = 'sar-myr' | 'myr-sar';
@@ -189,6 +191,31 @@ function loadCity(): City {
 export default function App() {
   const [locale, setLocale] = useState<Locale>(() => (localStorage.getItem('teman-locale') as Locale) || 'ms');
   const [page, setPage] = useState<Page>('home');
+  const [accountUser, setAccountUser] = useState<User | null>(null);
+  const [authMode, setAuthMode] = useState<'register' | 'login' | 'reset'>('register');
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authName, setAuthName] = useState('');
+  const [authBusy, setAuthBusy] = useState(false);
+  const [authMessage, setAuthMessage] = useState('');
+  useEffect(() => {
+    if (!supabase) return;
+    let mounted = true;
+    void supabase.auth.getUser().then(({ data }) => { if (mounted) setAccountUser(data.user); });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setAccountUser(session?.user ?? null));
+    return () => { mounted = false; subscription.unsubscribe(); };
+  }, []);
+  useEffect(() => {
+    if (!accountUser || !supabase) return;
+    let active = true;
+    void supabase.from('teman_profiles').select('pilgrim_details').eq('user_id', accountUser.id).maybeSingle()
+      .then(({ data, error }) => {
+        if (!active || error || !data?.pilgrim_details || typeof data.pilgrim_details !== 'object') return;
+        const remote = { ...EMPTY, ...data.pilgrim_details } as Profile;
+        setProfile(remote); setDraft(remote);
+      });
+    return () => { active = false; };
+  }, [accountUser]);
   const [profile, setProfile] = useState<Profile>(loadProfile);
   const [draft, setDraft] = useState<Profile>(profile);
   const [city, setCityState] = useState<City>(loadCity);
@@ -237,6 +264,30 @@ export default function App() {
     };
   }, []);
 
+  const submitAccount = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); setAuthMessage('');
+    if (!supabase) { setAuthMessage('Account service is not configured. Essential tools remain available.'); return; }
+    setAuthBusy(true);
+    try {
+      if (authMode === 'reset') {
+        const { error } = await supabase.auth.resetPasswordForEmail(authEmail.trim(), { redirectTo: window.location.origin });
+        if (error) throw error;
+        setAuthMessage(locale === 'ar' ? 'تحقق من بريدك الإلكتروني.' : locale === 'en' ? 'Check your email for password recovery instructions.' : 'Semak e-mel untuk arahan pemulihan kata laluan.');
+      } else if (authMode === 'register') {
+        const { error } = await supabase.auth.signUp({
+          email: authEmail.trim(), password: authPassword,
+          options: { emailRedirectTo: window.location.origin, data: { full_name: authName.trim(), product: 'teman' } }
+        });
+        if (error) throw error;
+        setAuthMessage(locale === 'ar' ? 'تحقق من بريدك الإلكتروني لتأكيد حسابك.' : locale === 'en' ? 'Check your email to confirm your account before signing in.' : 'Semak e-mel untuk mengesahkan akaun sebelum log masuk.');
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({ email: authEmail.trim(), password: authPassword });
+        if (error) throw error;
+        setPage('setup');
+      }
+    } catch (error) { setAuthMessage(error instanceof Error ? error.message : 'Account request failed'); }
+    finally { setAuthBusy(false); }
+  };
   const setLang = (next: Locale) => {
     setLocale(next);
     localStorage.setItem('teman-locale', next);
@@ -247,7 +298,7 @@ export default function App() {
     localStorage.setItem('teman-city', next);
   };
 
-  const saveProfile = () => {
+  const saveProfile = async () => {
     const cleaned: Profile = {
       ...draft,
       pilgrimName: draft.pilgrimName.trim(),
@@ -266,6 +317,13 @@ export default function App() {
     setProfile(cleaned);
     setDraft(cleaned);
     localStorage.setItem('teman-profile', JSON.stringify(cleaned));
+    if (supabase && accountUser) {
+      const { error } = await supabase.from('teman_profiles').upsert({
+        user_id: accountUser.id, display_name: cleaned.pilgrimName,
+        preferred_language: locale, pilgrim_details: cleaned, updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+      if (error) { setAuthMessage(error.message); setPage('account'); return; }
+    }
     setPage('home');
   };
 
@@ -412,7 +470,7 @@ export default function App() {
             <h2>{locale === 'ar' ? 'رفيقك الرقمي للحج والعمرة' : locale === 'en' ? 'Your Digital Companion for Hajj & Umrah' : 'Teman Digital Haji & Umrah Anda'}</h2>
             <p>{locale === 'ar' ? 'مساعدة باللغة العربية ومعلومات السفر والتواصل مع الأسرة في مكان واحد.' : locale === 'en' ? 'Arabic assistance, travel information and family connections in one accessible place.' : 'Bantuan bahasa Arab, maklumat perjalanan dan hubungan keluarga dalam satu tempat yang mudah digunakan.'}</p>
             <div className="temanLandingActions">
-              <button type="button" className="temanLandingPrimary" onClick={() => {setDraft(profile);setPage('setup');}}>{locale === 'ar' ? 'أنشئ ملفك الشخصي' : locale === 'en' ? 'Create Your Profile' : 'Cipta Profil Anda'} →</button>
+              <button type="button" className="temanLandingPrimary" onClick={() => {setAuthMode('register');setAuthMessage('');setPage('account');}}>{locale === 'ar' ? 'أنشئ ملفك الشخصي' : locale === 'en' ? 'Create Your Profile' : 'Cipta Profil Anda'} →</button>
               <button type="button" className="temanLandingSecondary" onClick={() => setPage('translate')}>{locale === 'ar' ? 'استكشف المزايا' : locale === 'en' ? 'Explore Features' : 'Terokai Ciri'}</button>
             </div>
             <p className="temanLandingNote">{locale === 'ar' ? 'المساعدة الأساسية مجانية. مزايا VIP الاختيارية قيد التخطيط.' : locale === 'en' ? 'Essential assistance is free. Optional VIP features are planned.' : 'Bantuan asas adalah percuma. Ciri VIP pilihan sedang dirancang.'}</p>
@@ -459,6 +517,25 @@ export default function App() {
       </div>
     </main>}
 
+    {page === 'account' && <main className="page">{back}
+      <section className="sectionHead"><h1>{locale === 'ar' ? 'حساب TEMAN' : locale === 'en' ? 'Your TEMAN Account' : 'Akaun TEMAN Anda'}</h1>
+      <p>{locale === 'ar' ? 'التسجيل مجاني. الخدمات الأساسية متاحة دون حساب.' : locale === 'en' ? 'Registration is free. Essential assistance remains available without an account.' : 'Pendaftaran percuma. Bantuan asas kekal tersedia tanpa akaun.'}</p></section>
+      {accountUser ? <div className="temanAccountPanel"><p>{accountUser.email}</p>
+        <button type="button" className="temanLandingPrimary" onClick={() => {setDraft(profile);setPage('setup')}}>{locale === 'ar' ? 'افتح ملفك' : locale === 'en' ? 'Open Pilgrim Profile' : 'Buka Profil Jemaah'}</button>
+        <button type="button" onClick={async () => { await supabase?.auth.signOut(); setPage('home'); }}>{locale === 'ar' ? 'تسجيل الخروج' : locale === 'en' ? 'Sign Out' : 'Log Keluar'}</button>
+      </div> : <form className="temanAccountPanel" onSubmit={submitAccount}>
+        <div className="temanAccountTabs">
+          <button type="button" aria-pressed={authMode === 'register'} onClick={() => {setAuthMode('register');setAuthMessage('')}}>{locale === 'ar' ? 'إنشاء حساب' : locale === 'en' ? 'Register' : 'Daftar'}</button>
+          <button type="button" aria-pressed={authMode === 'login'} onClick={() => {setAuthMode('login');setAuthMessage('')}}>{locale === 'ar' ? 'تسجيل الدخول' : locale === 'en' ? 'Sign In' : 'Log Masuk'}</button>
+        </div>
+        {authMode === 'register' && <label>{locale === 'ar' ? 'الاسم' : locale === 'en' ? 'Full name' : 'Nama penuh'}<input required autoComplete="name" value={authName} onChange={e=>setAuthName(e.target.value)} maxLength={120}/></label>}
+        <label>{locale === 'ar' ? 'البريد الإلكتروني' : locale === 'en' ? 'Email' : 'E-mel'}<input required type="email" autoComplete="email" value={authEmail} onChange={e=>setAuthEmail(e.target.value)}/></label>
+        {authMode !== 'reset' && <label>{locale === 'ar' ? 'كلمة المرور' : locale === 'en' ? 'Password (at least 8 characters)' : 'Kata laluan (minimum 8 aksara)'}<input required type="password" minLength={8} autoComplete={authMode === 'register' ? 'new-password' : 'current-password'} value={authPassword} onChange={e=>setAuthPassword(e.target.value)}/></label>}
+        <button type="submit" disabled={authBusy || !supabase} className="temanLandingPrimary">{authBusy ? '…' : authMode === 'reset' ? (locale === 'ar' ? 'إرسال رابط الاستعادة' : locale === 'en' ? 'Send Recovery Email' : 'Hantar E-mel Pemulihan') : authMode === 'register' ? (locale === 'ar' ? 'سجل مجانا' : locale === 'en' ? 'Create Free Account' : 'Cipta Akaun Percuma') : (locale === 'ar' ? 'دخول' : locale === 'en' ? 'Sign In' : 'Log Masuk')}</button>
+        <button type="button" className="temanAccountLink" onClick={() => {setAuthMode('reset');setAuthMessage('')}}>{locale === 'ar' ? 'نسيت كلمة المرور؟' : locale === 'en' ? 'Forgot password?' : 'Lupa kata laluan?'}</button>
+        {authMessage && <p role="status">{authMessage}</p>}
+      </form>}
+    </main>}
     {page === 'setup' && <main className="page">{back}<section className="sectionHead"><h1>{t.setupTitle}</h1><p>{t.setupIntro}</p></section>
       <div className="form">
         {field('pilgrimName', t.name)}{field('preferredName', t.preferred)}
