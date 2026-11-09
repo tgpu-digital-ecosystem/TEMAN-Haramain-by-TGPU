@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 
 type Locale = 'ms' | 'ar' | 'en';
-type Page = 'home' | 'app' | 'admin' | 'account' | 'setup' | 'emergency' | 'translate' | 'ibadah' | 'family-ibadah' | 'notes' | 'currency';
+type Page = 'home' | 'app' | 'investor-demo' | 'admin' | 'account' | 'setup' | 'emergency' | 'translate' | 'ibadah' | 'family-ibadah' | 'notes' | 'currency';
 type City = 'makkah' | 'madinah';
 type EmergencyKind = 'lost' | 'unwell' | 'bus';
 type CurrencyDirection = 'sar-myr' | 'myr-sar';
@@ -193,6 +193,7 @@ export default function App() {
   const [page, setPage] = useState<Page>('home');
   const [accountUser, setAccountUser] = useState<User | null>(null);
   const [demoActive, setDemoActive] = useState(false);
+  const [demoView, setDemoView] = useState<'client' | 'management'>('client');
   const [isTemanAdmin, setIsTemanAdmin] = useState(false);
   const [authMode, setAuthMode] = useState<'register' | 'login' | 'reset' | 'new-password'>('register');
   const [authEmail, setAuthEmail] = useState('');
@@ -218,6 +219,7 @@ export default function App() {
     const publicPages: Page[] = ['home','account'];
     if (!publicPages.includes(page) && !accountUser && !demoActive) setPage('home');
     if (page === 'admin' && !isTemanAdmin) setPage('home');
+    if (page === 'investor-demo' && !demoActive) setPage('home');
   }, [page, accountUser, demoActive, isTemanAdmin]);
   useEffect(() => {
     if (!accountUser || !supabase) return;
@@ -343,7 +345,7 @@ export default function App() {
       }, { onConflict: 'user_id' });
       if (error) { setAuthMessage(error.message); setPage('account'); return; }
     }
-    setPage('app');
+    setPage(demoActive ? 'investor-demo' : 'app');
   };
 
   const saveNotes = () => {
@@ -489,7 +491,7 @@ export default function App() {
           <p>{locale === 'ar' ? 'مساعدة عملية للحجاج والمعتمرين والعائلات، باللغات الملايوية والإنجليزية والعربية.' : locale === 'en' ? 'Pilgrimage guidance, Arabic assistance and family-focused tools in one accessible experience.' : 'Panduan ibadah, bantuan bahasa Arab dan kemudahan keluarga dalam satu pengalaman yang mudah.'}</p>
           <div className="temanLandingActions">
             <button type="button" className="temanLandingPrimary" onClick={() => { setDemoActive(false);setAuthMode('register');setPage('account'); }}>{locale === 'ar' ? 'أنشئ ملفك الشخصي' : locale === 'en' ? 'Create Your Profile' : 'Cipta Profil Anda'}</button>
-            <button type="button" className="temanLandingSecondary" onClick={() => { setDemoActive(true);setProfile(EMPTY);setDraft(EMPTY);setNotes('');setPage('app'); }}>{locale === 'ar' ? 'جرب النسخة التجريبية' : locale === 'en' ? 'Try Demo' : 'Cuba Demo'}</button>
+            <button type="button" className="temanLandingSecondary" onClick={() => { setDemoActive(true);setDemoView('client');setProfile(EMPTY);setDraft(EMPTY);setNotes('');setPage('investor-demo'); }}>{locale === 'ar' ? 'جرب النسخة التجريبية' : locale === 'en' ? 'Try Demo' : 'Cuba Demo'}</button>
             <button type="button" className="temanLandingSecondary" onClick={() => {setDemoActive(false);setAuthMode('login');setPage('account');}}>{locale === 'ar' ? 'تسجيل الدخول' : locale === 'en' ? 'Sign In' : 'Log Masuk'}</button>
           </div>
           <p className="temanLandingNote">{locale === 'ar' ? 'التسجيل الأساسي مجاني. خدمات VIP اختيارية قيد التطوير.' : locale === 'en' ? 'Free essential access. Optional VIP services are planned.' : 'Akses asas percuma. Perkhidmatan VIP pilihan sedang dirancang.'}</p>
@@ -501,6 +503,26 @@ export default function App() {
         <article><h3>{locale === 'ar' ? 'دعم الأسرة' : locale === 'en' ? 'Family Support' : 'Sokongan Keluarga'}</h3><p>{locale === 'ar' ? 'أدوات لتنظيم التواصل' : locale === 'en' ? 'Tools to help families stay organised' : 'Kemudahan untuk keluarga kekal teratur'}</p></article>
       </section>
       {isTemanAdmin && <button type="button" onClick={() => setPage('admin')}>{locale === 'ar' ? 'لوحة الإدارة' : locale === 'en' ? 'Admin Dashboard' : 'Papan Pemuka Admin'}</button>}
+    </main>}
+
+    {page === 'investor-demo' && demoActive && <main className="page">
+      <section className="sectionHead"><h1>{locale === 'ar' ? 'عرض TEMAN للمستثمرين' : locale === 'en' ? 'TEMAN Investor Demo' : 'Demo Pelabur TEMAN'}</h1>
+        <p>{locale === 'ar' ? 'بيانات توضيحية فقط. لا توجد بيانات عملاء حقيقية.' : locale === 'en' ? 'Illustrative experience only. No real customer data, transactions or admin access.' : 'Paparan ilustrasi sahaja. Tiada data pelanggan sebenar, transaksi atau akses admin.'}</p></section>
+      <div className="temanAccountTabs">
+        <button type="button" aria-pressed={demoView === 'client'} onClick={() => setDemoView('client')}>{locale === 'ar' ? 'تجربة الحاج' : locale === 'en' ? 'Client Experience' : 'Pengalaman Jemaah'}</button>
+        <button type="button" aria-pressed={demoView === 'management'} onClick={() => setDemoView('management')}>{locale === 'ar' ? 'عرض الإدارة' : locale === 'en' ? 'Management Experience' : 'Pengalaman Pengurusan'}</button>
+      </div>
+      {demoView === 'client' ? <div className="temanDemoGrid">
+        <article><h3>{locale === 'ar' ? 'ملف الحاج التجريبي' : locale === 'en' ? 'Sample Pilgrim Profile' : 'Profil Contoh Jemaah'}</h3><p>{locale === 'ar' ? 'حاج تجريبي • مكة والمدينة' : locale === 'en' ? 'Demo pilgrim • Makkah and Madinah' : 'Jemaah contoh • Makkah dan Madinah'}</p><button type="button" onClick={() => {setDraft(EMPTY);setPage('setup')}}>{locale === 'ar' ? 'جرب الملف' : locale === 'en' ? 'Try Profile' : 'Cuba Profil'}</button></article>
+        <article><h3>{locale === 'ar' ? 'مساعد اللغة' : locale === 'en' ? 'Language Assistance' : 'Bantuan Bahasa'}</h3><button type="button" onClick={() => setPage('translate')}>{locale === 'ar' ? 'استكشف' : locale === 'en' ? 'Explore' : 'Terokai'}</button></article>
+        <article><h3>{locale === 'ar' ? 'خدمات الأسرة VIP' : locale === 'en' ? 'VIP Family Care' : 'Penjagaan Keluarga VIP'}</h3><p>{locale === 'ar' ? 'نموذج خدمة مستقبلية، غير متاح للشراء' : locale === 'en' ? 'Planned service concept, not available for purchase' : 'Konsep perkhidmatan dirancang, belum dijual'}</p></article>
+      </div> : <div className="temanDemoGrid">
+        <article><h3>{locale === 'ar' ? 'رحلة التسجيل' : locale === 'en' ? 'Registration Pipeline' : 'Aliran Pendaftaran'}</h3><p>{locale === 'ar' ? 'طلب جديد ← تأكيد البريد ← ملف الحاج' : locale === 'en' ? 'New request → Email confirmation → Pilgrim profile' : 'Permohonan → Pengesahan e-mel → Profil jemaah'}</p></article>
+        <article><h3>{locale === 'ar' ? 'إدارة العملاء' : locale === 'en' ? 'Customer Management' : 'Pengurusan Pelanggan'}</h3><p>{locale === 'ar' ? 'مثال توضيحي على مراجعة حسابات الحجاج' : locale === 'en' ? 'Illustrative account review and support workflow' : 'Contoh aliran semakan akaun dan sokongan'}</p></article>
+        <article><h3>{locale === 'ar' ? 'خدمات VIP' : locale === 'en' ? 'VIP Service Plans' : 'Pelan Perkhidmatan VIP'}</h3><p>{locale === 'ar' ? 'نموذج اشتراك اختياري؛ لا توجد مدفوعات فعلية' : locale === 'en' ? 'Optional subscription concept; no live payments' : 'Konsep langganan pilihan; tiada pembayaran sebenar'}</p></article>
+        <article><h3>{locale === 'ar' ? 'تقارير تجريبية' : locale === 'en' ? 'Illustrative Reporting' : 'Laporan Ilustrasi'}</h3><p>{locale === 'ar' ? 'مؤشرات نموذجية فقط، ليست بيانات أعمال فعلية' : locale === 'en' ? 'Example reporting categories only, not actual business metrics' : 'Kategori laporan contoh, bukan metrik perniagaan sebenar'}</p></article>
+      </div>}
+      <button type="button" className="temanDemoExit" onClick={() => {setDemoActive(false);setProfile(loadProfile());setNotes(localStorage.getItem('teman-notes') || '');setPage('home')}}>{locale === 'ar' ? 'إنهاء العرض' : locale === 'en' ? 'Exit Investor Demo' : 'Keluar Demo Pelabur'}</button>
     </main>}
 
     {page === 'app' && <main className="page">
@@ -600,6 +622,6 @@ export default function App() {
         <div className="currencyResult" aria-live="polite"><span>{t.resultLabel}</span><strong>{currencyResult === null ? '—' : currencyResult.toLocaleString(locale === 'ar' ? 'ar-SA' : locale === 'ms' ? 'ms-MY' : 'en-US', { maximumFractionDigits: 2 })}</strong><b>{currencyDirection === 'sar-myr' ? 'MYR' : 'SAR'}</b></div>
       </section>
     </main>}
-    {(accountUser || demoActive) && page !== 'home' && page !== 'account' && page !== 'admin' && bottomNav}
+    {(accountUser || demoActive) && page !== 'home' && page !== 'account' && page !== 'admin' && page !== 'investor-demo' && bottomNav}
   </div>;
 }
