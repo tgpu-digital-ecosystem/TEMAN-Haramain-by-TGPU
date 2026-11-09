@@ -192,7 +192,7 @@ export default function App() {
   const [locale, setLocale] = useState<Locale>(() => (localStorage.getItem('teman-locale') as Locale) || 'ms');
   const [page, setPage] = useState<Page>('home');
   const [accountUser, setAccountUser] = useState<User | null>(null);
-  const [authMode, setAuthMode] = useState<'register' | 'login' | 'reset'>('register');
+  const [authMode, setAuthMode] = useState<'register' | 'login' | 'reset' | 'new-password'>('register');
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
   const [authName, setAuthName] = useState('');
@@ -202,7 +202,7 @@ export default function App() {
     if (!supabase) return;
     let mounted = true;
     void supabase.auth.getUser().then(({ data }) => { if (mounted) setAccountUser(data.user); });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setAccountUser(session?.user ?? null));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => { setAccountUser(session?.user ?? null); if (event === 'PASSWORD_RECOVERY') { setAuthMode('new-password'); setPage('account'); } });
     return () => { mounted = false; subscription.unsubscribe(); };
   }, []);
   useEffect(() => {
@@ -269,7 +269,12 @@ export default function App() {
     if (!supabase) { setAuthMessage('Account service is not configured. Essential tools remain available.'); return; }
     setAuthBusy(true);
     try {
-      if (authMode === 'reset') {
+      if (authMode === 'new-password') {
+        const { error } = await supabase.auth.updateUser({ password: authPassword });
+        if (error) throw error;
+        setAuthMessage(locale === 'ar' ? 'تم تحديث كلمة المرور.' : locale === 'en' ? 'Password updated.' : 'Kata laluan dikemas kini.');
+        setAuthMode('login');
+      } else if (authMode === 'reset') {
         const { error } = await supabase.auth.resetPasswordForEmail(authEmail.trim(), { redirectTo: window.location.origin });
         if (error) throw error;
         setAuthMessage(locale === 'ar' ? 'تحقق من بريدك الإلكتروني.' : locale === 'en' ? 'Check your email for password recovery instructions.' : 'Semak e-mel untuk arahan pemulihan kata laluan.');
@@ -530,8 +535,8 @@ export default function App() {
         </div>
         {authMode === 'register' && <label>{locale === 'ar' ? 'الاسم' : locale === 'en' ? 'Full name' : 'Nama penuh'}<input required autoComplete="name" value={authName} onChange={e=>setAuthName(e.target.value)} maxLength={120}/></label>}
         <label>{locale === 'ar' ? 'البريد الإلكتروني' : locale === 'en' ? 'Email' : 'E-mel'}<input required type="email" autoComplete="email" value={authEmail} onChange={e=>setAuthEmail(e.target.value)}/></label>
-        {authMode !== 'reset' && <label>{locale === 'ar' ? 'كلمة المرور' : locale === 'en' ? 'Password (at least 8 characters)' : 'Kata laluan (minimum 8 aksara)'}<input required type="password" minLength={8} autoComplete={authMode === 'register' ? 'new-password' : 'current-password'} value={authPassword} onChange={e=>setAuthPassword(e.target.value)}/></label>}
-        <button type="submit" disabled={authBusy || !supabase} className="temanLandingPrimary">{authBusy ? '…' : authMode === 'reset' ? (locale === 'ar' ? 'إرسال رابط الاستعادة' : locale === 'en' ? 'Send Recovery Email' : 'Hantar E-mel Pemulihan') : authMode === 'register' ? (locale === 'ar' ? 'سجل مجانا' : locale === 'en' ? 'Create Free Account' : 'Cipta Akaun Percuma') : (locale === 'ar' ? 'دخول' : locale === 'en' ? 'Sign In' : 'Log Masuk')}</button>
+        {authMode !== 'reset' && <label>{locale === 'ar' ? 'كلمة المرور' : locale === 'en' ? 'Password (at least 8 characters)' : 'Kata laluan (minimum 8 aksara)'}<input required type="password" minLength={8} autoComplete={authMode === 'register' || authMode === 'new-password' ? 'new-password' : 'current-password'} value={authPassword} onChange={e=>setAuthPassword(e.target.value)}/></label>}
+        <button type="submit" disabled={authBusy || !supabase} className="temanLandingPrimary">{authBusy ? '…' : authMode === 'new-password' ? (locale === 'ar' ? 'تحديث كلمة المرور' : locale === 'en' ? 'Set New Password' : 'Tetapkan Kata Laluan Baharu') : authMode === 'reset' ? (locale === 'ar' ? 'إرسال رابط الاستعادة' : locale === 'en' ? 'Send Recovery Email' : 'Hantar E-mel Pemulihan') : authMode === 'register' ? (locale === 'ar' ? 'سجل مجانا' : locale === 'en' ? 'Create Free Account' : 'Cipta Akaun Percuma') : (locale === 'ar' ? 'دخول' : locale === 'en' ? 'Sign In' : 'Log Masuk')}</button>
         <button type="button" className="temanAccountLink" onClick={() => {setAuthMode('reset');setAuthMessage('')}}>{locale === 'ar' ? 'نسيت كلمة المرور؟' : locale === 'en' ? 'Forgot password?' : 'Lupa kata laluan?'}</button>
         {authMessage && <p role="status">{authMessage}</p>}
       </form>}
