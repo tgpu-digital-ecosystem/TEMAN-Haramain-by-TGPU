@@ -13,7 +13,7 @@ async function api(path,body,bearer){
  if(!res.ok)throw Error(data.msg||data.error_description||data.message||data.error||'Authentication failed');
  return data;
 }
-function show(user){const ok=!!user;guest.style.display=ok?'none':'block';signed.style.display=ok?'block':'none';$('signed-email').textContent=ok?'Signed in as '+(user.email||'verified user'):''}
+async function show(user){const ok=!!user;guest.style.display=ok?'none':'block';signed.style.display=ok?'block':'none';$('signed-email').textContent=ok?'Signed in as '+(user.email||'verified user'):'';if(!ok)return;const label=$('membership');label.textContent='Membership: Basic (Free)';try{const res=await fetch(base+'/rest/v1/teman_memberships?select=tier,status,vip_expires_at&user_id=eq.'+encodeURIComponent(user.id),{headers:{apikey:key,Authorization:'Bearer '+token}});if(!res.ok)return;const rows=await res.json();const m=rows[0];if(m&&m.tier==='vip'&&m.status==='active'&&new Date(m.vip_expires_at)>new Date())label.textContent='Membership: VIP (Active)';}catch{}}
 async function run(fn){busy(true);try{await fn()}catch(e){say(e.message||'Unable to complete request.')}finally{busy(false)}}
 $('account-form').addEventListener('submit',e=>{e.preventDefault();run(async()=>{
  const d=await api('token?grant_type=password',{email:email.value.trim(),password:password.value});
