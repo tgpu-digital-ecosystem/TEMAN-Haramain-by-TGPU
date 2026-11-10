@@ -30,7 +30,7 @@ $('sign-up').addEventListener('click',()=>run(async()=>{
 }));
 $('reset').addEventListener('click',()=>run(async()=>{
  if(!email.reportValidity())return;
- await api('recover',{email:email.value.trim(),redirect_to:location.origin+'/account.html'});
+ await api('recover?redirect_to='+encodeURIComponent(location.origin+'/account.html'),{email:email.value.trim()});
  say('If this address has an account, password recovery instructions will be sent. Check your email.');
 }));
 $('sign-out').addEventListener('click',()=>run(async()=>{
