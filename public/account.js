@@ -5,6 +5,9 @@ const key='sb_publishable_LUGX_-Co3zolt94Qaj9AQg_m2zidH68';
 const $=id=>document.getElementById(id);
 const status=$('status'),email=$('email'),password=$('password'),guest=$('guest'),signed=$('signed');
 let token=sessionStorage.getItem('tgpu_digital_access_token')||'';
+const hash=new URLSearchParams(location.hash.slice(1));
+const recoveryToken=hash.get('type')==='recovery'?hash.get('access_token'):null;
+if(recoveryToken){token=recoveryToken;history.replaceState(null,'',location.pathname+location.search);$('guest').hidden=true;$('guest').style.display='none';$('recovery').hidden=false;}
 const say=t=>{status.textContent=t};
 const busy=v=>{for(const b of document.querySelectorAll('button'))b.disabled=v};
 async function api(path,body,bearer){
@@ -27,12 +30,19 @@ $('sign-up').addEventListener('click',()=>run(async()=>{
 }));
 $('reset').addEventListener('click',()=>run(async()=>{
  if(!email.reportValidity())return;
- await api('recover',{email:email.value.trim()});
+ await api('recover',{email:email.value.trim(),redirect_to:location.origin+'/account.html'});
  say('If this address has an account, password recovery instructions will be sent. Check your email.');
 }));
 $('sign-out').addEventListener('click',()=>run(async()=>{
  if(token){try{await api('logout',{},token)}catch{}}
  token='';sessionStorage.removeItem('tgpu_digital_access_token');show(null);say('Signed out.');
 }));
-if(token){fetch(base+'/auth/v1/user',{headers:{apikey:key,Authorization:'Bearer '+token}}).then(r=>r.ok?r.json():null).then(user=>{if(user)show(user);else{token='';sessionStorage.removeItem('tgpu_digital_access_token')}}).catch(()=>{})}
+$('recovery-form').addEventListener('submit',e=>{e.preventDefault();run(async()=>{
+ if(!recoveryToken)throw Error('Recovery link is invalid or expired. Request a new link.');
+ const field=$('new-password');if(!field.reportValidity())return;
+ const response=await fetch(base+'/auth/v1/user',{method:'PUT',headers:{'Content-Type':'application/json',apikey:key,Authorization:'Bearer '+recoveryToken},body:JSON.stringify({password:field.value})});
+ if(!response.ok)throw Error('Unable to reset password. Request a new recovery link.');
+ $('recovery').hidden=true;guest.hidden=false;guest.style.display='block';token='';sessionStorage.removeItem('tgpu_digital_access_token');say('Password updated. Sign in using your new password.');
+})});
+if(token&&!recoveryToken){fetch(base+'/auth/v1/user',{headers:{apikey:key,Authorization:'Bearer '+token}}).then(r=>r.ok?r.json():null).then(user=>{if(user)show(user);else{token='';sessionStorage.removeItem('tgpu_digital_access_token')}}).catch(()=>{})}
 })();
