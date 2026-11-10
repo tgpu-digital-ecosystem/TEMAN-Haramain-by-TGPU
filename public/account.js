@@ -7,6 +7,8 @@ const status=$('status'),email=$('email'),password=$('password'),guest=$('guest'
 let token=sessionStorage.getItem('tgpu_digital_access_token')||'';
 const hash=new URLSearchParams(location.hash.slice(1));
 const recoveryToken=hash.get('type')==='recovery'?hash.get('access_token'):null;
+const callbackError=hash.get('error_description')||hash.get('error');
+if(callbackError){history.replaceState(null,'',location.pathname+location.search);queueMicrotask(()=>say('Email link expired or invalid. Request a new verification or recovery email.'));}
 if(recoveryToken){token=recoveryToken;history.replaceState(null,'',location.pathname+location.search);$('guest').hidden=true;$('guest').style.display='none';$('recovery').hidden=false;}
 const say=t=>{status.textContent=t};
 const busy=v=>{for(const b of document.querySelectorAll('button'))b.disabled=v};
@@ -21,11 +23,11 @@ async function run(fn){busy(true);try{await fn()}catch(e){say(e.message||'Unable
 $('account-form').addEventListener('submit',e=>{e.preventDefault();run(async()=>{
  const d=await api('token?grant_type=password',{email:email.value.trim(),password:password.value});
  if(!d.access_token||!d.user)throw Error('No verified session returned.');
- token=d.access_token;sessionStorage.setItem('tgpu_digital_access_token',token);show(d.user);say('Signed in. You can now continue to the app.');
+ token=d.access_token;sessionStorage.setItem('tgpu_digital_access_token',token);await show(d.user);say('Signed in. You can now continue to the app.');
 })});
 $('sign-up').addEventListener('click',()=>run(async()=>{
  if(!email.reportValidity()||!password.reportValidity())return;
- await api('signup',{email:email.value.trim(),password:password.value});
+ await api('signup?redirect_to='+encodeURIComponent(location.origin+'/account.html'),{email:email.value.trim(),password:password.value});
  say('Registration submitted. Check your email for verification, then return here to sign in. If you already have an account, use Sign in.');
 }));
 $('reset').addEventListener('click',()=>run(async()=>{
@@ -44,5 +46,5 @@ $('recovery-form').addEventListener('submit',e=>{e.preventDefault();run(async()=
  if(!response.ok)throw Error('Unable to reset password. Request a new recovery link.');
  $('recovery').hidden=true;guest.hidden=false;guest.style.display='block';token='';sessionStorage.removeItem('tgpu_digital_access_token');say('Password updated. Sign in using your new password.');
 })});
-if(token&&!recoveryToken){fetch(base+'/auth/v1/user',{headers:{apikey:key,Authorization:'Bearer '+token}}).then(r=>r.ok?r.json():null).then(user=>{if(user)show(user);else{token='';sessionStorage.removeItem('tgpu_digital_access_token')}}).catch(()=>{})}
+if(token&&!recoveryToken){fetch(base+'/auth/v1/user',{headers:{apikey:key,Authorization:'Bearer '+token}}).then(r=>r.ok?r.json():null).then(user=>{if(user)void show(user);else{token='';sessionStorage.removeItem('tgpu_digital_access_token')}}).catch(()=>{})}
 })();
