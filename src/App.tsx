@@ -401,6 +401,7 @@ export default function App() {
         <button type="button" aria-pressed={locale === 'ar'} className={locale === 'ar' ? 'active' : ''} onClick={() => setLang('ar')}>العربية</button>
         <button type="button" aria-pressed={locale === 'en'} className={locale === 'en' ? 'active' : ''} onClick={() => setLang('en')}>EN</button>
       </div>
+      <nav aria-label="TEMAN account" style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}><a href="/account.html" style={{color:"inherit",fontWeight:700,padding:8}}>Sign in</a><a href="/account.html" style={{background:"#e5bd63",color:"#173c2c",padding:"8px 12px",borderRadius:8,fontWeight:700,textDecoration:"none"}}>Sign up / Join us</a></nav>
     </header>
 
     {page === 'home' && <main className="page">
