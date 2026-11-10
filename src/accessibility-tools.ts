@@ -44,8 +44,8 @@ export function initAccessibilityTools() {
       localStorage.setItem('teman-large-text', large ? '1' : '0');
       apply();
     });
-    const langs = topbar.querySelector('.langs');
-    if (langs) topbar.insertBefore(button, langs);
+    const accountNav = topbar.querySelector('.teman-account-nav');
+    if (accountNav) topbar.insertBefore(button, accountNav);
     else topbar.appendChild(button);
     apply();
   };
