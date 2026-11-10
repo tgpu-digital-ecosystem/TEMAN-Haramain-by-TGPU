@@ -340,3 +340,23 @@ html,body,button,input,textarea,select{font-family:"Noto Kufi Arabic",Tahoma,san
  .topbar .langs button{padding:6px 6px;font-size:12px}
  .topbar .teman-account-nav a{padding:7px 5px;font-size:11px}
 }
+
+/* Compact TEMAN header; no floating controls over safety actions. */
+.topbar .temanFeedbackTrigger{position:static!important;inset:auto!important;z-index:auto!important;box-shadow:none!important;min-height:40px;padding:7px 10px;font-size:13px;line-height:1.2;white-space:nowrap}
+.topbar .textSizeToggle{margin:0;min-width:44px;min-height:40px;padding:5px 8px}
+@media(max-width:640px){
+ .topbar{grid-template-columns:minmax(0,1fr) auto auto;column-gap:6px;row-gap:8px}
+ .topbar .brand{grid-column:1 / 3;grid-row:1;min-width:0}
+ .topbar .brand strong{font-size:clamp(14px,4vw,17px);white-space:normal;word-break:normal;overflow-wrap:normal}
+ .topbar .temanFeedbackTrigger{grid-column:3;grid-row:1;justify-self:end;font-size:11px;padding:7px 8px;max-width:90px;white-space:normal}
+ .topbar .langs{grid-column:1;grid-row:2;min-width:0;width:max-content;max-width:100%;gap:2px}
+ .topbar .langs button{padding:5px 7px;min-height:40px;font-size:12px}
+ .topbar .textSizeToggle{grid-column:2;grid-row:2;justify-self:center;min-width:40px;min-height:40px;font-size:14px}
+ .topbar .teman-account-nav{grid-column:3;grid-row:2;justify-self:end;gap:2px}
+ .topbar .teman-account-nav a{font-size:11px;padding:7px 5px;min-height:40px}
+}
+@media(max-width:370px){
+ .topbar .brand strong{font-size:14px}
+ .topbar .langs button{padding:5px 5px;font-size:11px}
+ .topbar .teman-account-nav a{font-size:10px;padding:6px 4px}
+}
