@@ -318,3 +318,25 @@ html,body,button,input,textarea,select{font-family:"Noto Kufi Arabic",Tahoma,san
 .travelIndustryGateway strong,.travelIndustryGateway span{display:block}
 .travelIndustryGateway>div{display:flex;flex-wrap:wrap;gap:10px 18px}
 .travelIndustryGateway a{display:inline-block;overflow-wrap:anywhere;line-height:1.5}
+
+
+/* Keep account links from squeezing the brand into vertical letters on narrow screens. */
+.topbar{flex-wrap:wrap}
+.topbar .brand{flex:1 1 210px;min-width:0}
+.topbar .brand strong{overflow-wrap:normal;word-break:normal;white-space:normal}
+.teman-account-nav{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.teman-account-nav a{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:8px 10px;font-size:14px;font-weight:750;text-decoration:none;color:var(--green);white-space:nowrap}
+.teman-account-nav .teman-join-link{background:#e5bd63;color:#173c2c;border-radius:10px}
+@media(max-width:640px){
+ .topbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:10px 12px;align-items:center}
+ .topbar .brand{grid-column:1 / -1;width:100%;display:flex;min-width:0;gap:10px}
+ .topbar .brand strong{font-size:17px;line-height:1.25;white-space:normal;overflow-wrap:normal;word-break:normal}
+ .topbar .langs{grid-column:1;grid-row:2;order:initial;width:auto;display:flex;min-width:0;gap:3px;padding:3px}
+ .topbar .langs button{min-width:0;min-height:40px;padding:6px 9px;font-size:13px}
+ .topbar .teman-account-nav{grid-column:2;grid-row:2;justify-self:end;gap:3px}
+ .topbar .teman-account-nav a{font-size:12px;min-height:40px;padding:7px 8px}
+}
+@media(max-width:370px){
+ .topbar .langs button{padding:6px 6px;font-size:12px}
+ .topbar .teman-account-nav a{padding:7px 5px;font-size:11px}
+}
