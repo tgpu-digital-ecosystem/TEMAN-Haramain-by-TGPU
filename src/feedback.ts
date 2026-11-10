@@ -268,7 +268,9 @@ export function initTemanFeedback() {
   trigger.type = 'button';
   trigger.className = 'temanFeedbackTrigger';
   trigger.addEventListener('click', openFeedback);
-  document.body.appendChild(trigger);
+  const header = document.querySelector<HTMLElement>('.topbar');
+  if (header) header.appendChild(trigger);
+  else document.body.appendChild(trigger);
   refreshTrigger(trigger);
 
   const observer = new MutationObserver(() => refreshTrigger(trigger));
