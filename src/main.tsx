@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import ZaiLanding from './ZaiLanding';
 import { initTemanUiRefresh, onTemanUiRefresh } from './ui-refresh';
 import { initUxEnhancements } from './ux-enhancements';
 import { initTravelReadiness } from './travel-readiness';
@@ -34,6 +35,16 @@ import './family-sms.css';
 import './offline-card.css';
 import './offline-map.css';
 import './feedback.css';
+
+function TemanEntry() {
+  const [entered, setEntered] = useState(() => window.location.hash === '#app');
+  useEffect(() => {
+    const sync = () => setEntered(window.location.hash === '#app');
+    window.addEventListener('hashchange', sync);
+    return () => window.removeEventListener('hashchange', sync);
+  }, []);
+  return entered ? <><button type="button" className="temanBackToLanding" onClick={() => { window.location.hash = ''; setEntered(false); }} aria-label="Return to TEMAN homepage">← TEMAN Haramain</button><App /></> : <ZaiLanding onEnter={() => { window.location.hash = 'app'; setEntered(true); }} />;
+}
 
 const rootElement = document.getElementById('root')!;
 const MAP_PACK_CACHE = 'teman-map-packs-v1';
@@ -114,7 +125,7 @@ if (isFamilyViewRoute()) {
 
   createRoot(rootElement).render(
     <React.StrictMode>
-      <App />
+      <TemanEntry />
     </React.StrictMode>,
   );
 
