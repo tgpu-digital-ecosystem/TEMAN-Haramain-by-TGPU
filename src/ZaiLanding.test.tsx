@@ -13,7 +13,7 @@ describe('Z.ai TEMAN public landing integration', () => {
     expect(markup).toContain('998 · Civil Defense');
   });
   it('preserves guest entry and existing account route', () => {
-    expect(markup).toContain('Use TEMAN — Free Essentials');
+    expect(markup).toContain('Gunakan TEMAN — Percuma');
     expect(markup).toContain('href="/account.html"');
   });
   it('contains the supplied Z.ai design sections and language controls', () => {
@@ -21,5 +21,7 @@ describe('Z.ai TEMAN public landing integration', () => {
     expect(markup).toContain('id="about"');
     expect(markup).toContain('aria-label="Language"');
     expect(markup).toContain('TEMAN Haramain');
+    expect(markup).toContain('src="/teman-icon.svg"');
+    expect(markup).toContain('aria-controls="teman-landing-navigation"');
   });
 });
