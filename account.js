@@ -13,23 +13,20 @@ async function api(path,body,bearer){
  if(!res.ok)throw Error(data.msg||data.error_description||data.message||data.error||'Authentication failed');
  return data;
 }
+async function emailApi(action,payload){const res=await fetch(base+'/functions/v1/teman-account-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...payload})});let d={};try{d=await res.json()}catch{}if(!res.ok)throw Error(d.error==='registration_unavailable_or_account_exists'?'Unable to register this address. If you already have an account, please sign in.':'Unable to send email right now. Please try again later.');return d;}
 function show(user){const ok=!!user;guest.style.display=ok?'none':'block';signed.style.display=ok?'block':'none';$('signed-email').textContent=ok?'Signed in as '+(user.email||'verified user'):''}
 async function run(fn){busy(true);try{await fn()}catch(e){say(e.message||'Unable to complete request.')}finally{busy(false)}}
+const isSignup=location.pathname.endsWith('/sign-up.html');
 $('account-form').addEventListener('submit',e=>{e.preventDefault();run(async()=>{
+ if(isSignup){
+  await emailApi('signup',{email:email.value.trim(),password:password.value});
+  say('Registration submitted. Please check your email for verification, then use the separate Sign in page.');
+  return;
+ }
  const d=await api('token?grant_type=password',{email:email.value.trim(),password:password.value});
  if(!d.access_token||!d.user)throw Error('No verified session returned.');
- token=d.access_token;sessionStorage.setItem('tgpu_digital_access_token',token);show(d.user);say('Signed in. You can now continue to the app.');
+ token=d.access_token;sessionStorage.setItem('tgpu_digital_access_token',token);show(d.user);say('Signed in. You can now continue to the learning app.');
 })});
-$('sign-up').addEventListener('click',()=>run(async()=>{
- if(!email.reportValidity()||!password.reportValidity())return;
- await api('signup',{email:email.value.trim(),password:password.value});
- say('Registration submitted. Check your email for verification, then return here to sign in. If you already have an account, use Sign in.');
-}));
-$('reset').addEventListener('click',()=>run(async()=>{
- if(!email.reportValidity())return;
- await api('recover',{email:email.value.trim()});
- say('If this address has an account, password recovery instructions will be sent. Check your email.');
-}));
 $('sign-out').addEventListener('click',()=>run(async()=>{
  if(token){try{await api('logout',{},token)}catch{}}
  token='';sessionStorage.removeItem('tgpu_digital_access_token');show(null);say('Signed out.');
