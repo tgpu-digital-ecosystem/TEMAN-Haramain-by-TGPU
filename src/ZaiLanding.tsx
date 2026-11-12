@@ -10,7 +10,7 @@ const copy = {
 const heroImage='https://z-cdn-media.chatglm.cn/files/fcf22e8c-b3c8-4f19-8d4f-1521722e19e0.png?auth_key=1894452449-093dfa27ce7f45a68571879f2afbe6aa-0-e96cadee1cad53396036a617ffc8a50d';
 const madinahImage='https://z-cdn-media.chatglm.cn/files/315bdeb3-b3a2-43de-8aed-a12e27d2d5c5.png?auth_key=1894452449-5fa59cf5aa24431bb87321336a73d59d-0-bb183d05ecdb9f211765cbdb7a0220f5';
 export default function ZaiLanding({onEnter}:{onEnter:()=>void}) {
- const [lang,setLang]=useState<Language>(() => { try { const saved = window.localStorage.getItem('teman-landing-language'); return saved === 'en' || saved === 'ms' || saved === 'ar' ? saved : 'ms'; } catch { return 'ms'; } });
+ const [lang,setLang]=useState<Language>(() => { try { const saved = typeof window === 'undefined' ? null : window.localStorage.getItem('teman-landing-language'); return saved === 'en' || saved === 'ms' || saved === 'ar' ? saved : 'ms'; } catch { return 'ms'; } });
  const [menu,setMenu]=useState(false);
  useEffect(() => { const root = document.documentElement; const previousLang = root.lang; const previousDir = root.dir; root.lang = lang; root.dir = lang === 'ar' ? 'rtl' : 'ltr'; try { window.localStorage.setItem('teman-landing-language', lang); } catch { /* Storage may be unavailable in private browsing. */ } return () => { root.lang = previousLang; root.dir = previousDir; }; }, [lang]);
  const t=copy[lang];
