@@ -22,3 +22,12 @@
 5. Only after preview acceptance, release narrowly scoped changes with rollback evidence; update Notion HQ and the existing Drive technical handover.
 
 **No public release or payment activation is authorized by this document.**
+
+## Cloudflare control-plane inspection — 15 November 2026
+- Verified Worker `tgpu-teman`, deployed version 28 (`6355c047-9f2a-4ffc-9f83-adc95d0a67eb`) at 100%, last deployed 12 Nov 2026.
+- Worker version runtime declares static assets with `not_found_handling: single-page-application`, `serve_directly: true`, and `base_path: /`. Runtime compatibility date `2026-11-10`.
+- Worker settings returned **no bindings**. Do not infer the Supabase account frontend is functional from this alone; check browser/network and published static assets.
+- The Cloudflare Worker script content v2 endpoint returned an empty body for this asset-based deployment; **deployed static asset bytes were not recovered**. Do not overwrite it with GitHub `main` or PR #35 without source parity and a rollback plan.
+- Repository branch uses Vite (`npm run build`: `tsc -b && vite build`, default `dist` output). No checked-in `wrangler.toml` or `wrangler.jsonc` was found at repository root. The existing Cloudflare Worker was deployed using Wrangler, but its original deployment project/configuration remains unverified.
+- DNS `teman.tgpu.my` is proxied AAAA `100::`; no TEMAN Pages project found in the connected Cloudflare account.
+- **Next technical blocker**: establish deployed asset/source provenance and safe preview pipeline before any upload or route changes. This is distinct from the obsolete Azure staging quota issue.
