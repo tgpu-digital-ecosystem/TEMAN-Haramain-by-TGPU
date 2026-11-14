@@ -2,8 +2,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { readFileSync } from 'node:fs';
 
-const html = readFileSync(new URL('../public/owner.html', import.meta.url), 'utf8');
-const script = readFileSync(new URL('../public/owner.js', import.meta.url), 'utf8');
+const html = readFileSync('public/owner.html', 'utf8');
+const script = readFileSync('public/owner.js', 'utf8');
 const tick = () => new Promise(resolve => setTimeout(resolve, 0));
 
 function setup(token?: string) {
