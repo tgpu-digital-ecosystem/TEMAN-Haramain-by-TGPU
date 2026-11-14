@@ -35,14 +35,10 @@ grant select,insert on public.teman_jamaah_announcements to authenticated;
 -- Membership lookups only expose the current user's membership.
 create policy teman_jamaah_member_self_read on public.teman_jamaah_members
   for select to authenticated using (user_id = (select auth.uid()));
--- Organisers can invite members, but cannot grant organiser role.
-create policy teman_jamaah_member_organiser_invite on public.teman_jamaah_members
-  for insert to authenticated with check (
-    role = 'member' and exists (
-      select 1 from public.teman_jamaah_groups g
-      where g.id = group_id and g.organiser_id = (select auth.uid())
-    )
-  );
+-- No direct member inserts until a consent-based invitation acceptance
+-- flow is implemented and tested. Group creation does not enroll anyone.
+-- In particular, an organiser must not enroll another user's account
+-- without that person's explicit acceptance.
 -- Members may leave, but organisers cannot be removed via this policy.
 create policy teman_jamaah_member_leave on public.teman_jamaah_members
   for delete to authenticated using (user_id = (select auth.uid()) and role = 'member');
