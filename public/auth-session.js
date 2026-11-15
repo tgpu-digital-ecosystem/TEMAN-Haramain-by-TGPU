@@ -11,9 +11,9 @@
   storage.setItem(legacyKey,data.access_token);epoch++;
  }
  function current(){try{return JSON.parse(storage.getItem(sessionKey)||'null');}catch{clear();return null;}}
- async function getAccessToken(){
+ async function getAccessToken(force=false){
   const session=current();if(!session)return storage.getItem(legacyKey)||'';
-  if(session.expires_at>Date.now()/1000+30)return session.access_token;
+  if(!force&&session.expires_at>Date.now()/1000+30)return session.access_token;
   if(pending)return pending;
   if(!session.refresh_token){clear();throw Error('session_expired');}
   const started=epoch;

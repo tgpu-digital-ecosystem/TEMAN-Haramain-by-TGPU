@@ -47,7 +47,7 @@ $('reset').addEventListener('click',()=>run(async()=>{
  say('If this address has an account, password recovery instructions will be sent. Check your email.');
 }));
 $('sign-out').addEventListener('click',()=>run(async()=>{
- const logoutToken=await Promise.resolve(window.TemanSession?.getAccessToken()||token).catch(()=>token);window.TemanSession?.clear();token='';sessionStorage.removeItem('tgpu_digital_access_token');await show(null);
+ const logoutToken=await Promise.resolve(window.TemanSession?.getAccessToken(preview)||token).catch(()=>token);window.TemanSession?.clear();token='';sessionStorage.removeItem('tgpu_digital_access_token');await show(null);
  try{if(logoutToken)await api('logout',{},logoutToken);say('Signed out.');}catch{say('Signed out on this device. Server session revocation could not be verified.');}
 }));
 $('recovery-form').addEventListener('submit',e=>{e.preventDefault();run(async()=>{
