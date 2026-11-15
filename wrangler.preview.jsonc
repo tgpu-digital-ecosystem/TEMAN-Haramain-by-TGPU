@@ -5,11 +5,9 @@
   "compatibility_date": "2026-11-10",
   "workers_dev": false,
   "assets": { "directory": "./dist", "binding": "ASSETS", "run_worker_first": ["/api/documents*"], "not_found_handling": "single-page-application" },
-  "r2_buckets": [{ "binding": "DOCUMENTS", "bucket_name": "tgpu-digital-private-files" }],
-  "vars": {
-    "SUPABASE_URL": "https://mpidjwjghtpeybedmbkd.supabase.co",
-    "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_LUGX_-Co3zolt94Qaj9AQg_m2zidH68"
-  }
-  // SUPABASE_SERVICE_KEY is a server secret. Attach a founder-only Access custom domain
-  // before preview deployment. No route or credentials are provisioned by this file.
+  "vars": {}
+  // Functional document previews require a separately verified isolated Supabase
+  // project, private staging bucket, server secret and founder-only Access first.
+  // Production database defaults and bucket bindings are deliberately absent.
+  // The read-only review pack uses scripts/build-safe-preview.mjs instead.
 }

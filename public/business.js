@@ -6,9 +6,9 @@ const token=sessionStorage.getItem('tgpu_digital_access_token');
 let user,existing;
 const say=text=>{$('status').textContent=text;if(text?.i18nKey)$('status').dataset.i18n=text.i18nKey;else delete $('status').dataset.i18n;};
 async function api(path,method='GET',body){
- const r=await fetch(base+path,{method,headers:{apikey:key,Authorization:'Bearer '+token,'Content-Type':'application/json',Prefer:'return=representation'},...(body?{body:JSON.stringify(body)}:{})});
+ const r=await fetch(base+path,{method,headers:{apikey:key,Authorization:'Bearer '+(await (window.TemanSession?.getAccessToken()||token)),'Content-Type':'application/json',Prefer:'return=representation'},...(body?{body:JSON.stringify(body)}:{})});
  const data=await r.json().catch(()=>null);
- if(!r.ok)throw Error(r.status===401?tr("b_1735ecf6cc","Your session expired. Sign in again."):r.status===404?tr("b_6bd7966253","Partner onboarding is not enabled in this environment yet."):data?.message||tr("b_642495f075","Request failed. Please retry."));
+ if(r.status===401)window.TemanSession?.clear();if(!r.ok)throw Error(r.status===401?tr("b_1735ecf6cc","Your session expired. Sign in again."):r.status===404?tr("b_6bd7966253","Partner onboarding is not enabled in this environment yet."):data?.message||tr("b_642495f075","Request failed. Please retry."));
  return data;
 }
 function text(tag,value,parent){const el=document.createElement(tag);if(value?.i18nKey){const span=document.createElement('span');span.dataset.i18n=value.i18nKey;span.textContent=value;el.append(span);}else el.textContent=value;parent.append(el);return el;}
@@ -37,7 +37,7 @@ $('application').onsubmit=async e=>{e.preventDefault();const f=e.currentTarget;c
 (window.TemanUI?.ready||Promise.resolve()).then(()=>load()).catch(err=>say(err.message));
 
 async function documentRequest(bid,id='',method='GET',body){
- const r=await fetch('/api/documents'+(id?'/'+id:'')+'?business='+bid,{method,headers:{Authorization:'Bearer '+token},body});
+ const r=await fetch('/api/documents'+(id?'/'+id:'')+'?business='+bid,{method,headers:{Authorization:'Bearer '+(await (window.TemanSession?.getAccessToken()||token))},body});
  if(!r.ok)throw Error(tr("b_6a87b8ab5e","Document request failed. Check your access, file type, size and quota."));
  return method==='GET'&&id?r.blob():r.json();
 }
@@ -48,6 +48,9 @@ async function showDocuments(bid,parent,editable){
  if(editable){const remove=text('button',tr("b_86e2598142","Remove document"),row);remove.type='button';remove.onclick=async()=>{remove.disabled=true;try{await documentRequest(bid,d.id,'DELETE');await showDocuments(bid,parent,editable);}catch(e){say(e.message);remove.disabled=false;}};}
  }
 }
-$('document-upload').onsubmit=e=>{e.preventDefault();if(!existing)return;const f=e.currentTarget,b=f.querySelector('button'),file=f.elements.namedItem('file').files[0];if(!file||file.size>5242880){say(tr("b_f9488c0837","Maximum file size is 5 MB."));return;}
- b.disabled=true;const progress=$('upload-progress');progress.hidden=false;progress.value=0;const xhr=new XMLHttpRequest();xhr.open('POST','/api/documents?business='+existing.id);xhr.setRequestHeader('Authorization','Bearer '+token);xhr.upload.onprogress=e=>{if(e.lengthComputable)progress.value=Math.round(e.loaded/e.total*100);};xhr.onload=async()=>{b.disabled=false;progress.hidden=true;if(xhr.status>=200&&xhr.status<300){f.reset();say(tr("b_79e5d1060a","Document uploaded to quarantine for review."));await showDocuments(existing.id,$('document-list'),true).catch(e=>say(e.message));}else say(tr("b_fa560cb746","Upload failed. Check file type, size, quota and review status."));};xhr.onerror=()=>{b.disabled=false;progress.hidden=true;say(tr("b_8beddbd99e","Upload interrupted. Please retry."));};xhr.send(new FormData(f));};
+$('document-upload').onsubmit=async e=>{e.preventDefault();if(!existing)return;const f=e.currentTarget,b=f.querySelector('button'),file=f.elements.namedItem('file').files[0];if(!file||file.size>5242880){say(tr("b_f9488c0837","Maximum file size is 5 MB."));return;}
+ let access;try{access=await (window.TemanSession?.getAccessToken()||token);}catch{say(tr("b_1735ecf6cc","Your session expired. Sign in again."));return;}
+ b.disabled=true;const progress=$('upload-progress');progress.hidden=false;progress.value=0;const xhr=new XMLHttpRequest();xhr.open('POST','/api/documents?business='+existing.id);xhr.setRequestHeader('Authorization','Bearer '+access);xhr.upload.onprogress=e=>{if(e.lengthComputable)progress.value=Math.round(e.loaded/e.total*100);};xhr.onload=async()=>{b.disabled=false;progress.hidden=true;if(xhr.status>=200&&xhr.status<300){f.reset();say(tr("b_79e5d1060a","Document uploaded to quarantine for review."));await showDocuments(existing.id,$('document-list'),true).catch(e=>say(e.message));}else say(tr("b_fa560cb746","Upload failed. Check file type, size, quota and review status."));};xhr.onerror=()=>{b.disabled=false;progress.hidden=true;say(tr("b_8beddbd99e","Upload interrupted. Please retry."));};xhr.send(new FormData(f));};
 $('profile').onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,b=f.querySelector('button');b.disabled=true;try{const values=Object.fromEntries(['display_name','description','category'].map(k=>[k,f.elements.namedItem(k).value.trim()]));const path='/rest/v1/teman_provider_profiles';const profiles=await api(path+'?business_id=eq.'+existing.id);const saved=await api(path+(profiles.length?'?business_id=eq.'+existing.id:''),profiles.length?'PATCH':'POST',profiles.length?values:{...values,business_id:existing.id});if(!saved?.length)throw Error(tr("b_9d90dfb3db","Profile not saved."));say(tr("b_67150cad98","Public profile saved."));}catch(e){say(e.message);}finally{b.disabled=false;}};
+
+window.addEventListener('teman-session-cleared',()=>{$('workspace').hidden=true;$('review').hidden=true;$('queue').replaceChildren();$('document-list').replaceChildren();existing=null;user=null;});

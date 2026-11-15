@@ -7,7 +7,7 @@ $('listing').addEventListener('input',()=>{dirty=true;});
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
 $('cancel-edit').onclick=()=>{if(dirty&&!confirm(tr("b_e9f81751f2","Discard unsaved changes?")))return;$('listing').reset();dirty=false;};
 const say=t=>{$('status').textContent=t;if(t?.i18nKey)$('status').dataset.i18n=t.i18nKey;else delete $('status').dataset.i18n;};
-async function api(path,method='GET',body){const r=await fetch(base+path,{method,headers:{apikey:key,Authorization:'Bearer '+token,'Content-Type':'application/json',Prefer:'return=representation'},...(body?{body:JSON.stringify(body)}:{})});const d=await r.json().catch(()=>null);if(!r.ok)throw Error(r.status===401?tr("b_45ed41ad22","Session expired. Sign in again."):d?.message||tr("b_491a7db3e1","This workflow is not enabled in this environment yet."));return d;}
+async function api(path,method='GET',body){const r=await fetch(base+path,{method,headers:{apikey:key,Authorization:'Bearer '+(await (window.TemanSession?.getAccessToken()||token)),'Content-Type':'application/json',Prefer:'return=representation'},...(body?{body:JSON.stringify(body)}:{})});const d=await r.json().catch(()=>null);if(r.status===401)window.TemanSession?.clear();if(!r.ok)throw Error(r.status===401?tr("b_45ed41ad22","Session expired. Sign in again."):d?.message||tr("b_491a7db3e1","This workflow is not enabled in this environment yet."));return d;}
 function text(tag,value,parent){const e=document.createElement(tag);if(value?.i18nKey){const span=document.createElement('span');span.dataset.i18n=value.i18nKey;span.textContent=value;e.append(span);}else e.textContent=value;parent.append(e);return e;}
 function action(label,parent,fn){const b=text('button',label,parent);b.type='button';b.onclick=async()=>{b.disabled=true;try{await fn();await load();}catch(e){say(e.message);}finally{b.disabled=false;}};return b;}
 async function load(){
@@ -33,3 +33,5 @@ async function load(){
 }
 $('listing').onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,b=f.querySelector('button');b.disabled=true;try{const data=Object.fromEntries(fields.map(k=>[k,f.elements.namedItem(k).value.trim()]));const id=f.elements.namedItem('id').value;const saved=await api('/rest/v1/teman_services'+(id?'?id=eq.'+id:''),id?'PATCH':'POST',{...data,...(!id?{business_id:business.id}:{}),status:f.elements.namedItem('status').value});if(!saved?.length)throw Error(tr("b_635f78fa8c","Service not saved."));f.reset();dirty=false;await load();say(tr("b_73b1648141","Service saved. Publication requires founder moderation."));}catch(err){say(err.message);}finally{b.disabled=false;}};
 (window.TemanUI?.ready||Promise.resolve()).then(()=>load()).catch(e=>say(e.message));
+
+window.addEventListener('teman-session-cleared',()=>{$('enquiries').replaceChildren();$('services').replaceChildren();$('provider').hidden=true;user=null;business=null;admin=false;});

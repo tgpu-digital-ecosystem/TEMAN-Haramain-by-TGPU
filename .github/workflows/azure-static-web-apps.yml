@@ -1,16 +1,22 @@
 name: TEMAN CI (no deployment)
 on:
   push:
-    branches: [main, 'feature/teman-business-*', 'feature/teman-phase2-*']
+    branches: [main]
   pull_request:
     types: [opened, synchronize, reopened]
 permissions:
   contents: read
+concurrency:
+  group: teman-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -18,6 +24,7 @@ jobs:
       - run: npm test
       - run: npm run test:business-db
       - run: npm run build
+      - run: npm run build:safe-preview
       - name: Install browser for synthetic UI verification
         run: npx playwright install --with-deps chromium
       - name: Verify synthetic mobile and RTL UI
