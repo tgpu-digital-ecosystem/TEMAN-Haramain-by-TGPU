@@ -1,7 +1,8 @@
 const tr=(k,fallback)=>window.TemanUI?.value(k)||fallback;
 const base='https://mpidjwjghtpeybedmbkd.supabase.co',key='sb_publishable_LUGX_-Co3zolt94Qaj9AQg_m2zidH68';
 const $=id=>document.getElementById(id),token=sessionStorage.getItem('tgpu_digital_access_token');
-let user,business,admin=false,dirty=false;
+let user,business,admin=false,dirty=false,serviceOffset=0;
+let serviceQuery="",serviceCategory="";
 const fields=['title','category','description','service_area','availability','pricing','terms','inclusions','exclusions','contact'];
 $('listing').addEventListener('input',()=>{dirty=true;});
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
@@ -17,7 +18,11 @@ async function load(){
  business=(await api('/rest/v1/teman_businesses?select=id,status,is_test&owner_id=eq.'+user.id))[0];
  $('provider').hidden=!business||business.status!=='approved';
  const profiles=await api('/rest/v1/teman_provider_profiles?select=business_id,display_name');
- const services=await api('/rest/v1/teman_services?select=*&order=created_at.desc&limit=100');$('services').replaceChildren();
+ let query='/rest/v1/teman_services?select=*&order=created_at.desc,id.desc&limit=51&offset='+serviceOffset;
+ if(serviceQuery)query+='&title=ilike.*'+encodeURIComponent(serviceQuery.replace(/[\\%_*]/g,c=>'\\'+c))+'*';
+ if(serviceCategory)query+='&category=eq.'+encodeURIComponent(serviceCategory);
+ const page=await api(query),services=page.slice(0,50);$('services-prev').hidden=serviceOffset===0;$('services-next').hidden=page.length<=50;
+ $('service-page').textContent=tr('s_page','Service page')+' '+(1+serviceOffset/50);$('services').replaceChildren();
  if(!services.length)text('p',tr("b_001f39aa22","No services available."),$('services'));
  for(const s of services){const a=text('article','',$('services'));text('h3',s.title,a);text('p',(window.TemanUI?.t(s.category)||s.category)+' · '+s.service_area+' · '+(window.TemanUI?.t(s.status)||s.status),a);for(const k of ['description','availability','pricing','terms','inclusions','exclusions','contact'])text('p',s[k],a);text('p',profiles.find(p=>p.business_id===s.business_id)?.display_name||tr("b_345d0fbc89","Provider ")+s.business_id.slice(0,8),a);
  if(business?.id===s.business_id){action(tr("b_efb22c3c04","Edit service"),a,async()=>{if(dirty&&!confirm(tr("b_e9f81751f2","Discard unsaved changes?")))return;const f=$('listing');for(const k of fields)f.elements.namedItem(k).value=s[k]||'';f.elements.namedItem('id').value=s.id;f.elements.namedItem('status').value='draft';dirty=false;f.scrollIntoView({behavior:'smooth'});});action(tr("b_dc8ff88b3c","Archive service"),a,()=>api('/rest/v1/teman_services?id=eq.'+s.id,'PATCH',{status:'archived'}));}
@@ -25,13 +30,16 @@ async function load(){
  if(business?.id===s.business_id&&s.status!=='draft')action(tr("b_febb611f46","Unpublish my service"),a,()=>api('/rest/v1/teman_services?id=eq.'+s.id,'PATCH',{status:'draft'}));
  if(s.status==='published'){const f=text('form','',a),label=text('label',tr("b_5a9743bac0","Your enquiry (no passport, medical or precise location details)"),f),input=document.createElement('textarea');input.required=true;input.minLength=10;input.maxLength=4000;label.append(input);const testLabel=text('label','',f),test=document.createElement('input');test.type='checkbox';testLabel.append(test);testLabel.append(document.createTextNode(tr("b_ac13fefaa1","Synthetic test enquiry")));const b=text('button',tr("b_4fba49b06f","Send enquiry"),f);f.onsubmit=async e=>{e.preventDefault();b.disabled=true;try{const rows=await api('/rest/v1/teman_service_enquiries','POST',{service_id:s.id,body:input.value.trim(),is_test:test.checked});if(!rows?.length)throw Error(tr("b_9c6a6ede2e","Enquiry not saved"));const ref=rows[0].id;await load();say(tr("b_6c18e3c641","Enquiry saved. Reference: ")+ref+'. This is not a booking.');}catch(err){say(err.message);}finally{b.disabled=false;}};}}
  const enquiries=await api('/rest/v1/teman_service_enquiries?select=*&order=created_at.desc&limit=100');$('enquiries').replaceChildren();if(!enquiries.length)text('p',tr("b_455b7dc123","No enquiries yet."),$('enquiries'));
- for(const e of enquiries){const a=text('article','',$('enquiries'));const providerId=services.find(s=>s.id===e.service_id)?.business_id;text('p',profiles.find(p=>p.business_id===providerId)?.display_name||tr("b_345d0fbc89","Provider ")+(providerId||'').slice(0,8),a);text('h3',e.id+(e.is_test?' — SYNTHETIC TEST':''),a);text('p',e.created_at+' · '+e.status,a);text('p',e.body,a);
+ for(const e of enquiries){const a=text('article','',$('enquiries'));a.id='enquiry-'+e.id;const providerId=services.find(s=>s.id===e.service_id)?.business_id;text('p',profiles.find(p=>p.business_id===providerId)?.display_name||tr("b_345d0fbc89","Provider ")+(providerId||'').slice(0,8),a);text('h3',e.id+(e.is_test?' — SYNTHETIC TEST':''),a);text('p',e.created_at+' · '+e.status,a);text('p',e.body,a);
  const messages=await api('/rest/v1/teman_enquiry_messages?select=sender_id,body,created_at&enquiry_id=eq.'+e.id+'&order=created_at.asc&limit=100');for(const m of messages)text('p',m.created_at+' · '+(m.sender_id===user.id?tr("b_905cb326c7","You"):m.sender_id===e.pilgrim_id?tr("b_fa90e82f42","Pilgrim"):tr("b_ccef5404c0","Provider / owner"))+': '+m.body,a);
  if(e.status!=='closed'){const f=text('form','',a),label=text('label',tr("b_6c2bb735a4","Reply"),f),input=document.createElement('textarea');input.required=true;input.maxLength=4000;label.append(input);const b=text('button',tr("b_7f7e603af5","Send reply"),f);f.onsubmit=async event=>{event.preventDefault();b.disabled=true;try{await api('/rest/v1/teman_enquiry_messages','POST',{enquiry_id:e.id,body:input.value.trim()});await load();say(tr("b_1e15e65eb0","Reply saved."));}catch(err){say(err.message);}finally{b.disabled=false;}};if(admin||e.pilgrim_id!==user.id){action(tr("b_d9979401a0","Mark responded"),a,()=>api('/rest/v1/teman_service_enquiries?id=eq.'+e.id,'PATCH',{status:'responded'}));action(tr("b_f688aa822f","Close enquiry"),a,()=>api('/rest/v1/teman_service_enquiries?id=eq.'+e.id,'PATCH',{status:'closed'}));}}
  }
- say(tr("b_deafe8fdda","Loaded recorded activity. Showing up to 100 records per section."));
+ say(tr('s_loaded','Loaded saved activity. Services are paginated; the enquiry inbox shows up to 100 records.'));
 }
 $('listing').onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,b=f.querySelector('button');b.disabled=true;try{const data=Object.fromEntries(fields.map(k=>[k,f.elements.namedItem(k).value.trim()]));const id=f.elements.namedItem('id').value;const saved=await api('/rest/v1/teman_services'+(id?'?id=eq.'+id:''),id?'PATCH':'POST',{...data,...(!id?{business_id:business.id}:{}),status:f.elements.namedItem('status').value});if(!saved?.length)throw Error(tr("b_635f78fa8c","Service not saved."));f.reset();dirty=false;await load();say(tr("b_73b1648141","Service saved. Publication requires founder moderation."));}catch(err){say(err.message);}finally{b.disabled=false;}};
 (window.TemanUI?.ready||Promise.resolve()).then(()=>load()).catch(e=>say(e.message));
 
 window.addEventListener('teman-session-cleared',()=>{$('enquiries').replaceChildren();$('services').replaceChildren();$('provider').hidden=true;user=null;business=null;admin=false;});
+
+$('service-search').onsubmit=async e=>{e.preventDefault();const form=e.currentTarget,b=form.querySelector('button');b.disabled=true;try{serviceQuery=form.elements.namedItem('query').value.trim();serviceCategory=form.elements.namedItem('category').value;serviceOffset=0;await load();}catch(e){say(e.message);}finally{b.disabled=false;}};
+for(const [id,delta] of [['services-prev',-50],['services-next',50]])$(id).onclick=async()=>{const b=$(id);b.disabled=true;try{serviceOffset=Math.max(0,serviceOffset+delta);await load();}catch(e){say(e.message);}finally{b.disabled=false;}};

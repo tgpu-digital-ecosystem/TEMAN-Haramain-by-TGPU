@@ -3,3 +3,7 @@ dist/
 *.tsbuildinfo
 
 .preview-build/
+
+supabase/.temp/
+
+.integration/
