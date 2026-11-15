@@ -24,4 +24,9 @@ describe('Z.ai TEMAN public landing integration', () => {
     expect(markup).toContain('src="/teman-icon.svg"');
     expect(markup).toContain('aria-controls="teman-landing-navigation"');
   });
+  it('requires permanent locally hosted landing imagery before release', () => {
+    // This intentionally fails while the Z.ai landing references expiring signed CDN URLs.
+    // Replace them with approved local assets, then keep this regression gate.
+    expect(markup).not.toMatch(/z-cdn-media\\.chatglm\\.cn|auth_key=|[?&](?:token|signature|expires)=/i);
+  });
 });
