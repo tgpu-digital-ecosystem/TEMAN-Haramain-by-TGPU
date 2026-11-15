@@ -1,0 +1,52 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> teman-haramain-by-tgpu@0.1.0 build
+> tsc -b && vite build
+
+vite v8.3.8 building client environment for production...
+transforming...
+✓ 2156 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                                       3.60 kB │ gzip:   1.08 kB
+dist/assets/noto-kufi-arabic-symbols-600-normal-gGFfrt4u.woff2        4.62 kB
+dist/assets/noto-kufi-arabic-symbols-400-normal-XE42xKys.woff2        4.62 kB
+dist/assets/noto-kufi-arabic-symbols-700-normal-B0RrZ4WM.woff2        4.65 kB
+dist/assets/noto-kufi-arabic-symbols-700-normal-B0HIZBCT.woff         5.98 kB
+dist/assets/noto-kufi-arabic-symbols-600-normal-BPG_9Nwo.woff         6.03 kB
+dist/assets/noto-kufi-arabic-symbols-400-normal-vs2Us--s.woff         6.04 kB
+dist/assets/noto-kufi-arabic-latin-ext-400-normal-Bf0h9UEw.woff2      6.40 kB
+dist/assets/noto-kufi-arabic-latin-ext-600-normal-B90_l063.woff2      6.44 kB
+dist/assets/noto-kufi-arabic-latin-ext-700-normal-Do6DQzkb.woff2      6.44 kB
+dist/assets/noto-kufi-arabic-math-700-normal-C3Yz6b2N.woff2           7.56 kB
+dist/assets/noto-kufi-arabic-math-400-normal-C58RzX6y.woff2           7.58 kB
+dist/assets/noto-kufi-arabic-math-600-normal-EEoXMfAu.woff2           7.58 kB
+dist/assets/noto-kufi-arabic-latin-ext-700-normal-CIjQIZSZ.woff       8.28 kB
+dist/assets/noto-kufi-arabic-latin-ext-400-normal-dk0qCnZv.woff       8.30 kB
+dist/assets/noto-kufi-arabic-latin-ext-600-normal-BjuybwvT.woff       8.34 kB
+dist/assets/noto-kufi-arabic-math-700-normal-OvHCOp4h.woff            9.64 kB
+dist/assets/noto-kufi-arabic-math-600-normal-BhDcNs-e.woff            9.73 kB
+dist/assets/noto-kufi-arabic-math-400-normal-COEL3rX1.woff            9.74 kB
+dist/assets/noto-kufi-arabic-latin-700-normal-CeymQha4.woff2         10.38 kB
+dist/assets/noto-kufi-arabic-latin-400-normal-BIMeMYep.woff2         10.44 kB
+dist/assets/noto-kufi-arabic-latin-600-normal-BU20Dfqv.woff2         10.46 kB
+dist/assets/noto-kufi-arabic-latin-700-normal-CyuqOqA9.woff          13.22 kB
+dist/assets/noto-kufi-arabic-latin-600-normal-UiIawE5u.woff          13.38 kB
+dist/assets/noto-kufi-arabic-latin-400-normal-9DDibutD.woff          13.41 kB
+dist/assets/noto-kufi-arabic-arabic-700-normal-CGKuvZQr.woff2        43.87 kB
+dist/assets/noto-kufi-arabic-arabic-400-normal-BvgpXdLf.woff2        43.94 kB
+dist/assets/noto-kufi-arabic-arabic-600-normal-DpQOABqh.woff2        47.41 kB
+dist/assets/noto-kufi-arabic-arabic-400-normal-PyVzz14P.woff         69.06 kB
+dist/assets/noto-kufi-arabic-arabic-700-normal-SbQDc0eq.woff         69.88 kB
+dist/assets/noto-kufi-arabic-arabic-600-normal-DeKYl9zm.woff         73.84 kB
+dist/assets/offline-map-qvkd0SPb.css                                 71.33 kB │ gzip:  10.25 kB
+dist/assets/index-CSn-cKhh.css                                       97.38 kB │ gzip:  18.28 kB
+dist/assets/index-CNlpNYCd.js                                       435.67 kB │ gzip: 137.65 kB
+dist/assets/offline-map-C3T_IJvi.js                               1,113.41 kB │ gzip: 306.86 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 839ms
