@@ -26,6 +26,7 @@ jobs:
       - run: npm run test:business-db
       - run: npm run build
       - run: npm run build:safe-preview
+      - run: node scripts/build-live-account.mjs
       - name: Install browser for synthetic UI verification
         run: npx playwright install --with-deps chromium
       - name: Verify synthetic mobile and RTL UI
