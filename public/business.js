@@ -13,6 +13,7 @@ async function api(path,method='GET',body){
 }
 function text(tag,value,parent){const el=document.createElement(tag);if(value?.i18nKey){const span=document.createElement('span');span.dataset.i18n=value.i18nKey;span.textContent=value;el.append(span);}else el.textContent=value;parent.append(el);return el;}
 async function load(){
+ if(['founder-auth-preview','read-only'].includes(window.TemanAuthConfig?.mode)){say('Operational data is disabled in this preview. Founder sign-in is available through Account.');return;}
  $('workspace').hidden=true;$('review').hidden=true;
  if(!token){say(tr("b_3ac93b7277","Sign in with a verified email using Account, then return here."));return;}
  user=await api('/auth/v1/user');

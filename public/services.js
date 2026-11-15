@@ -12,6 +12,7 @@ async function api(path,method='GET',body){const r=await fetch(base+path,{method
 function text(tag,value,parent){const e=document.createElement(tag);if(value?.i18nKey){const span=document.createElement('span');span.dataset.i18n=value.i18nKey;span.textContent=value;e.append(span);}else e.textContent=value;parent.append(e);return e;}
 function action(label,parent,fn){const b=text('button',label,parent);b.type='button';b.onclick=async()=>{b.disabled=true;try{await fn();await load();}catch(e){say(e.message);}finally{b.disabled=false;}};return b;}
 async function load(){
+ if(['founder-auth-preview','read-only'].includes(window.TemanAuthConfig?.mode)){say('Operational data is disabled in this preview. Founder sign-in is available through Account.');return;}
  if(!token){say(tr("b_7df4ad1d4d","Sign in through Account to view services and submit enquiries."));return;}
  user=await api('/auth/v1/user');if(!user.email_confirmed_at)throw Error(tr("b_564cb235f7","Verify your email first."));
  admin=(await api('/rest/v1/teman_admins?select=user_id&user_id=eq.'+user.id)).length>0;

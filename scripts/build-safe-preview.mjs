@@ -8,7 +8,7 @@ for(const [i,file]of walk('dist').entries()){
  const bytes=readFileSync(file);imports.push(`import a${i} from './${name}';`);entries.push(`${JSON.stringify('/'+file.replace(/^dist\//,''))}:{type:${JSON.stringify(type)},body:a${i}}`);modules.push({name,content_type:text?'text/plain':'application/octet-stream',content_base64:bytes.toString('base64')});
 }
 writeFileSync(join(dir,'review-assets.mjs'),imports.join('\n')+'\nexport const assets={'+entries.join(',')+'};');
-const entry=readFileSync('worker/read-only-preview.mjs','utf8').replace("'./preview-auth.mjs'",JSON.stringify(resolve('worker/preview-auth.mjs'))).replace("'./review-assets.mjs'","'./review-assets.mjs'");writeFileSync(join(dir,'entry.mjs'),entry);
+const entry=readFileSync('worker/read-only-preview.mjs','utf8').replace("'./preview-auth.mjs'",JSON.stringify(resolve('worker/preview-auth.mjs'))).replace("'./preview-auth-api.mjs'",JSON.stringify(resolve("worker/preview-auth-api.mjs"))).replace("'./review-assets.mjs'","'./review-assets.mjs'");writeFileSync(join(dir,'entry.mjs'),entry);
 const result=await build({entryPoints:[join(dir,'entry.mjs')],bundle:true,write:false,format:'esm',platform:'browser',target:'es2022',external:['./review-asset-*'],minify:true});
 modules.unshift({name:'review.js',content_type:'application/javascript+module',content_base64:Buffer.from(result.outputFiles[0].text).toString('base64')});
 const source=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();

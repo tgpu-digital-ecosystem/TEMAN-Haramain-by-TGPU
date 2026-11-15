@@ -1,7 +1,7 @@
 /* Ephemeral session refresh only. Membership and owner checks stay server-side. */
 (()=>{
  const storage=sessionStorage,sessionKey='teman_auth_session',legacyKey='tgpu_digital_access_token';
- const base='https://mpidjwjghtpeybedmbkd.supabase.co',key='sb_publishable_LUGX_-Co3zolt94Qaj9AQg_m2zidH68';
+ const base=window.TemanAuthConfig?.base||'https://mpidjwjghtpeybedmbkd.supabase.co',key='sb_publishable_LUGX_-Co3zolt94Qaj9AQg_m2zidH68';
  let epoch=0,pending=null;
  function clear(){epoch++;pending=null;storage.removeItem(sessionKey);storage.removeItem(legacyKey);window.dispatchEvent(new Event('teman-session-cleared'));}
  function save(data){

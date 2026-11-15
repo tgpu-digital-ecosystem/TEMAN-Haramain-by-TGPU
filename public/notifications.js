@@ -1,5 +1,6 @@
 // Private in-app delivery only. No email or background push delivery is implied.
 (()=>{
+ if(['founder-auth-preview','read-only'].includes(window.TemanAuthConfig?.mode))return;
  const base='https://mpidjwjghtpeybedmbkd.supabase.co',key='sb_publishable_LUGX_-Co3zolt94Qaj9AQg_m2zidH68';
  const section=document.createElement('section');section.id='teman-notifications';section.hidden=true;document.querySelector('main').append(section);
  let rows=[],offset=0,more=false,busy=false,epoch=0,note='';

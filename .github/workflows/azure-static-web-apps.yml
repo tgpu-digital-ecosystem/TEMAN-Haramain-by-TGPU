@@ -11,6 +11,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   test:
+    timeout-minutes: 25
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -37,18 +38,6 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-  isolated-supabase:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          persist-credentials: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - run: npm ci
       - name: Prepare disposable local stack
         run: node scripts/prepare-supabase-integration.mjs
       - name: Start isolated Supabase services
