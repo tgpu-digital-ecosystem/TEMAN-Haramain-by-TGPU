@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:business-db": "node scripts/test-business-db.mjs"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
@@ -26,6 +27,7 @@
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "@types/qrcode": "^1.5.5",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.11",
+    "@electric-sql/pglite": "0.3.14"
   }
 }
