@@ -51,6 +51,13 @@ jobs:
           npx --yes supabase@3.1.0 status --workdir .integration -o json > .integration/status.json 2> .integration/status.log
       - name: Real local Auth and PostgREST acceptance
         run: node scripts/test-supabase-integration.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: teman-founder-role-real-integration-evidence
+          path: docs/evidence/founder-role/
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Dispose synthetic stack
         if: always()
         run: npx --yes supabase@3.1.0 stop --workdir .integration --no-backup > /dev/null 2>&1

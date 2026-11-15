@@ -24,10 +24,22 @@ async function api(path,body,bearer){
  return data;
 }
 async function accountEmail(action){const response=await request(base+'/functions/v1/teman-account-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,email:email.value.trim(),...(action==='signup'?{password:password.value}:{})})});if(!response.ok)throw Error('Account email could not be sent. Please retry later or sign in if an account already exists.');}
-let ownerCheck=0;
-async function show(user){const check=++ownerCheck;const ownerLink=$('owner-link');ownerLink.hidden=true;const ok=!!user;guest.style.display=ok?'none':'block';signed.style.display=ok?'block':'none';$('signed-email').textContent=ok?'Signed in as '+(user.email||'verified user'):'';if(!ok)return;const label=$('membership');label.textContent='Membership: Basic (Free)';try{const res=await request(base+'/rest/v1/teman_memberships?select=tier,status,vip_expires_at&user_id=eq.'+encodeURIComponent(user.id),{headers:{apikey:key,Authorization:'Bearer '+token}});if(res.ok){const rows=await res.json();const m=rows[0];if(check===ownerCheck&&m&&m.tier==='vip'&&m.status==='active'&&new Date(m.vip_expires_at)>new Date())label.textContent='Membership: VIP (Active)';}}catch{}
- try{const res=await request(base+'/rest/v1/teman_admins?select=user_id&user_id=eq.'+encodeURIComponent(user.id)+'&limit=1',{headers:{apikey:key,Authorization:'Bearer '+token},cache:'no-store'});if(res.ok){const rows=await res.json();if(check===ownerCheck&&Array.isArray(rows)&&rows.length===1&&window.TemanAuthConfig?.ownerWorkspaceAvailable!==false)ownerLink.hidden=false;}}catch{}
+let ownerCheck=0,access=null;
+const translate=key=>window.TemanAccess?.t(key)||key;
+function renderAccess(){
+ $('account-role').textContent=translate('role')+': '+translate(access?(access.founder?'founder':'member'):'unverified');
+ $('account-state').textContent=translate('status')+': '+translate(access?'active':'inactive');
+ const m=access?.membership;$('membership').textContent=translate('membership')+': '+translate(m?(m.tier==='vip'&&m.status==='active'&&new Date(m.vip_expires_at)>new Date()?'vip':'basic'):'unverified');
+ $('owner-link').hidden=!access?.founder||window.TemanAuthConfig?.ownerWorkspaceAvailable===false;
 }
+async function show(user){const check=++ownerCheck;access=null;$('owner-link').hidden=true;const ok=!!user;guest.style.display=ok?'none':'block';signed.style.display=ok?'block':'none';$('signed-email').textContent=ok?translate('email')+': '+(user.email||''):'';renderAccess();if(!ok)return;
+ $('account-role').textContent=translate('role')+': '+translate('checking');
+ try{const verified=await window.TemanAccess.verify(token);if(check!==ownerCheck)return;access=verified;$('signed-email').textContent=translate('email')+': '+verified.user.email;}catch{}if(check===ownerCheck)renderAccess();
+}
+window.addEventListener('teman-language-changed',()=>{renderAccess();if(access)$('signed-email').textContent=translate('email')+': '+access.user.email;});
+window.addEventListener('teman-session-cleared',()=>{token='';void show(null);});
+$('verify-access').addEventListener('click',()=>run(async()=>{token=await(window.TemanSession?.getAccessToken()||token);await show({id:'pending'});}));
+window.TemanAccess?.init();
 async function run(fn){busy(true);try{await fn()}catch(e){say(e.message||'Unable to complete request.')}finally{busy(false)}}
 $('account-form').addEventListener('submit',e=>{e.preventDefault();if(readOnly){say('Authentication is disabled in this read-only preview. No request was sent.');return;}run(async()=>{
  const d=await api('token?grant_type=password',{email:email.value.trim(),password:password.value});
