@@ -17,7 +17,7 @@ Cloudflare Access application 54072432-1984-4615-8036-7d2c3b63083e targets previ
 
 The review worker verifies signed RS256 Access JWTs, issuer, audience, expiry and founder email on every request. It refuses production hostnames, denies backend API operations and static writes, disables cross-origin connections, and labels itself read-only. No database/R2/email credentials or bindings are included. Existing document-preview template no longer defaults to production database or bucket bindings.
 
-Preview build is prepared, not yet deployed or browser-verified. Candidate destination: https://feature-teman-phase2-pilot-20261115-tgpu-teman.moesaffin.workers.dev . Do not call this a working marketplace, live authentication test or functional storage preview. The exact-source build must be uploaded only to this named preview after CI passes. Do not deploy the read-only bundle to the production Worker.
+Read-only preview deployed successfully as aff831db-32e1-46df-bdf4-2174d4869599 (deployment 1), source f33dd1af379f8f07ceecaedddf457aae3bb969df. Deployment readback confirms only SOURCE_COMMIT and ACCESS_AUD plain-text bindings; no backend bindings. Browser verified unauthenticated navigation redirects to the correct TEMAN Cloudflare Access login. Founder authenticated content/session testing remains pending. Preview destination: https://feature-teman-phase2-pilot-20261115-tgpu-teman.moesaffin.workers.dev . Do not call this a working marketplace, live authentication test or functional storage preview. GitHub CI run 43701731949 passed for that exact source, including npm ci, 73 tests, 46 SQL checks, build, preview packaging and synthetic mobile/RTL browser tests. Do not deploy the read-only bundle to the production Worker.
 
 ## Release blockers
 
@@ -28,7 +28,7 @@ Preview build is prepared, not yet deployed or browser-verified. Candidate desti
 | Migrations/recovery | PR #38/#39 migrations remain unapplied. Complete production compatibility, protected backup and restore/rollback rehearsal still required. |
 | Operational journeys | Real founder/provider/pilgrim onboarding, publication, enquiries and notifications pending on isolated backend. Read-only UI cannot certify them. |
 | Product regression | Full EN/MS/AR errors/status text, real-device accessibility, approved permanent media, Family Link backend/privacy and map performance remain open. |
-| Provenance | Production version is 6355c047-9f2a-4ffc-9f83-adc95d0a67eb, deployment 50d82454-6c69-4760-b74b-8ff6ffa7afe1 (previous live read). Exact production Git source parity not established. Re-read before any release. |
+| Provenance | Production version is 6355c047-9f2a-4ffc-9f83-adc95d0a67eb, deployment 50d82454-6c69-4760-b74b-8ff6ffa7afe1 (re-read after preview deployment: unchanged at 100%). Exact production Git source parity not established. Re-read before any release. |
 | Founder acceptance | Interactive Access login and real app acceptance pending; no OTP or identity bypass. |
 
 ## Rollback and recovery limits
@@ -36,3 +36,5 @@ Preview build is prepared, not yet deployed or browser-verified. Candidate desti
 No production rollback is needed because this work is staged. For a faulty read-only preview, remove/replace only its named preview deployment; retain Access protection. Production Worker and database stay unchanged. Code rollback can revert the continuation commit on the feature branch. This does not constitute a data recovery test.
 
 For a future database release: export schema and critical data through an authorised private channel, encrypt and restrict access, verify a restore in isolation, reconcile tenant mapping and test forward/rollback behavior first. Do not assume Free-plan point-in-time recovery. Never commit production personal data, secrets or exports. Until verified recoverability and every critical gate pass, keep both PRs draft and do not merge or migrate.
+
+CI evidence: https://github.com/tgpu-digital-ecosystem/TEMAN-Haramain-by-TGPU/actions/runs/43701731949 . Code tree parity: 69045bc9606c6301d66470387344c671bc461863. This documentation-only follow-up does not change the deployed preview source.
