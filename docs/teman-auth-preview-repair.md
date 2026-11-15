@@ -32,3 +32,10 @@ Real hosted founder authentication requires interactive Cloudflare Access sign-i
 Deploy only to the existing named protected preview. Bind AUTH_SUPABASE_URL, AUTH_SUPABASE_PUBLIC_KEY (publishable/anon only), FOUNDER_AUTH_ENABLED, ACCESS_AUD and SOURCE_COMMIT. Never attach a service-role key or data/storage binding. Verify immutable deployment source, binding names, Access gate and unchanged production version 6355c047-9f2a-4ffc-9f83-adc95d0a67eb.
 
 Rollback only the named preview to deployment f1d249e6-0000-4ab7-877b-8a6eacc13a77 or set FOUNDER_AUTH_ENABLED=false. Retain Access protection. No database rollback is required. Never deploy this bundle to the production Worker.
+
+
+## Separate authentication staging — follow-up
+
+Founder-supplied screenshot confirms successful production login at /account with mamduh@tgpu.my. Preserve the read-only review deployment with connect-src self and disabled sign-in. A separate explicitly opted-in STAGING_DIRECT_AUTH deployment uses exactly the existing production Supabase Auth origin directly, with CSP restricted to /auth/v1/ and the two existing own-role/membership read endpoints. All other database/storage endpoints remain blocked. Existing Cloudflare Access preview-worker policy protects both URLs, founder email only. No new Supabase project, credentials, role assignment or production deployment.
+
+The previous same-origin bridge remains opt-in only and will be disabled in both these deployments. Direct staging uses its own browser-origin session; production sessions are not copied. Account creation/recovery/password changes and business workflows remain disabled in its interface. Real hosted founder sign-in still requires interactive acceptance, not an assumption from synthetic tests. Existing local real Supabase confirmation/recovery and browser session tests remain required. The operational staging is for founder authentication acceptance, not a certified full provider/pilgrim backend.

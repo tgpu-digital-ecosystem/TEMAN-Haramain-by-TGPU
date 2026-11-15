@@ -6,10 +6,13 @@ const headers={'Cache-Control':'private, no-store','X-Content-Type-Options':'nos
 export default {async fetch(request,env){
  let identity;try{identity=await authenticate(request,env);}catch{return new Response('Founder Access required',{status:403,headers});}
  const url=new URL(request.url);
+ const direct=env.STAGING_DIRECT_AUTH==='true';
+ const authOrigin='https://mpidjwjghtpeybedmbkd.supabase.co';
+ const responseHeaders=direct?{...headers,'X-TEMAN-Preview':'founder-auth-staging','Content-Security-Policy':csp.replace("connect-src 'self'","connect-src 'self' "+authOrigin+'/auth/v1/ '+authOrigin+'/rest/v1/teman_admins '+authOrigin+'/rest/v1/teman_memberships')}:headers;
  // A review build must never function as production, even if selected accidentally.
  if(['teman.tgpu.my','tgpu-teman.moesaffin.workers.dev'].includes(url.hostname))return new Response('Preview build unavailable on production',{status:503,headers});
  if(url.pathname.startsWith('/api/preview/'))return handlePreviewAuth(request,env,identity);
- if(url.pathname==='/auth-config.js')return new Response('window.TemanAuthConfig='+JSON.stringify({mode:env.FOUNDER_AUTH_ENABLED==='true'?'founder-auth-preview':'read-only',base:'/api/preview'})+';',{headers:{...headers,'Content-Type':'application/javascript'}});
+ if(url.pathname==='/auth-config.js')return new Response('window.TemanAuthConfig='+JSON.stringify({mode:direct||env.FOUNDER_AUTH_ENABLED==='true'?'founder-auth-preview':'read-only',base:direct?authOrigin:'/api/preview'})+';',{headers:{...responseHeaders,'Content-Type':'application/javascript'}});
  if(url.pathname.startsWith('/api/'))return Response.json({error:'read_only_preview',message:'No production or isolated backend is connected.'},{status:503,headers});
  if(!['GET','HEAD'].includes(request.method))return new Response('Read-only preview',{status:405,headers});
  if(url.pathname==='/sw.js')return new Response("self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil(self.registration.unregister()));",{headers:{...headers,'Content-Type':'application/javascript'}});
@@ -19,9 +22,9 @@ export default {async fetch(request,env){
  const asset=assets[path];let body=asset.body;
  if(asset.type.startsWith('text/html')){
   const commit=/^[a-f0-9]{40}$/.test(env.SOURCE_COMMIT||'')?env.SOURCE_COMMIT:'candidate';
-  const label=env.FOUNDER_AUTH_ENABLED==='true'?'Founder authentication preview. Existing TGPU Digital identity is used for sign-in only. Account creation, password changes, uploads and business-data writes are disabled.':'Founder read-only preview. Login, uploads, enquiries and backend writes are disabled';
+  const label=direct?'Protected founder authentication staging. Sign-in uses the same Supabase Auth endpoint as production. Business data, uploads and account changes remain disabled.':env.FOUNDER_AUTH_ENABLED==='true'?'Founder authentication preview. Existing TGPU Digital identity is used for sign-in only. Account creation, password changes, uploads and business-data writes are disabled.':'Founder read-only preview. Login, uploads, enquiries and backend writes are disabled';
   const banner='<aside role="status" style="padding:16px;background:#063f35;color:#f8f6f0;border-bottom:2px solid #c6a667;font:16px system-ui">'+label+' · '+commit.slice(0,8)+'. Existing local guest tools remain available. External media and network maps are disabled.</aside>';
   body=/<body[^>]*>/i.test(body)?body.replace(/<body[^>]*>/i,m=>m+banner):body.replace('<main>','<body>'+banner+'<main>');
  }
- return new Response(request.method==='HEAD'?null:body,{headers:{...headers,'Content-Type':asset.type,'X-TEMAN-Source':env.SOURCE_COMMIT||'candidate'}});
+ return new Response(request.method==='HEAD'?null:body,{headers:{...responseHeaders,'Content-Type':asset.type,'X-TEMAN-Source':env.SOURCE_COMMIT||'candidate'}});
 }};
