@@ -1,3 +1,20 @@
+# Latest verified evidence — PR #39
+
+Implementation commit: e710f31f590ae67785edd66e26119af37b3d5cb4. GitHub Actions run 43694993521 passed all steps: 37 Vitest tests, 46 database checks, build, Chromium installation and synthetic browser mobile/RTL test. Screenshot artifact 14153743817 was downloaded and all three PNGs inspected. Arabic/mobile form layout showed no horizontal overflow; title input survived language changes. These screenshots use synthetic HTTP fixtures, not live accounts or database acceptance.
+
+R2 tgpu-digital-private-files: managed public domain enabled=false, custom domains empty (read-only verified). Cloudflare automatically attempted build 614381e7-6b36-4524-b5fa-6824efad860c for this commit and it failed; the deliberate WORKERS_CI guard blocks upload. Preview build control 5bfea80b92f54ff5b9f7df289925ba01 was subsequently patched and read back auto_build=false. Production settings were not changed. No protected preview deployment is claimed.
+
+| Feature | Implemented | Security tested | UI tested | Release ready |
+|---|---|---|---|---|
+| Secure uploads | PARTIAL | PARTIAL | BLOCKED | BLOCKED |
+| Pilot analytics | PARTIAL | PARTIAL | BLOCKED | BLOCKED |
+| Provider display names | PARTIAL | PARTIAL | PARTIAL | BLOCKED |
+| Service editing | PARTIAL | PARTIAL | PARTIAL | BLOCKED |
+| Malay interface | PARTIAL | PARTIAL | PARTIAL | BLOCKED |
+| Arabic interface | PARTIAL | PARTIAL | PARTIAL | BLOCKED |
+
+Evidence links: [CI run](https://github.com/tgpu-digital-ecosystem/TEMAN-Haramain-by-TGPU/actions/runs/43694993521), [screenshot artifact](https://github.com/tgpu-digital-ecosystem/TEMAN-Haramain-by-TGPU/actions/runs/43694993521/artifacts/14153743817). Local browser limitation below remains accurate; remote synthetic browser testing supersedes the earlier lack of screenshot evidence only.
+
 # TEMAN Phase 2 — implementation checkpoint
 
 This is a review branch based on PR #38 commit 305becf81b2725b58f84ecee45c65f7da7fe3968, itself based on main 44ebf15697598eae2e121733df84731d5cce21be. PR #35 and #36 were read, not merged. PR #38 remains an explicit dependency. This work is not a completed production release.
