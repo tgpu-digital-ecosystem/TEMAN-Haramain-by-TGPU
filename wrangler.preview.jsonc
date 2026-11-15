@@ -1,0 +1,13 @@
+{
+  // Review template only. Never deploy over tgpu-teman production.
+  "name": "tgpu-teman-phase2-preview",
+  "main": "worker/documents.mjs",
+  "compatibility_date": "2026-11-10",
+  "workers_dev": false,
+  "assets": { "directory": "./dist", "binding": "ASSETS", "run_worker_first": ["/api/documents*"], "not_found_handling": "single-page-application" },
+  "vars": {}
+  // Functional document previews require a separately verified isolated Supabase
+  // project, private staging bucket, server secret and founder-only Access first.
+  // Production database defaults and bucket bindings are deliberately absent.
+  // The read-only review pack uses scripts/build-safe-preview.mjs instead.
+}

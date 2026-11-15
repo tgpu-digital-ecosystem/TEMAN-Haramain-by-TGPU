@@ -1,0 +1,13 @@
+
+> teman-haramain-by-tgpu@0.1.0 test
+> vitest run
+
+
+ RUN  v4.1.12 /workspace/scratch/3b0152dc95ff/TEMAN-Haramain-by-TGPU
+
+
+ Test Files  8 passed (8)
+      Tests  37 passed (37)
+   Start at  16:28:10
+   Duration  1.65s (transform 469ms, setup 0ms, import 744ms, tests 753ms, environment 5.69s)
+

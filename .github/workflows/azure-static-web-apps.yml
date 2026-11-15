@@ -1,16 +1,23 @@
 name: TEMAN CI (no deployment)
 on:
   push:
-    branches: [main, 'feature/teman-business-*']
+    branches: [main, feature/teman-phase2-pilot-20261115]
   pull_request:
     types: [opened, synchronize, reopened]
 permissions:
   contents: read
+concurrency:
+  group: teman-ci-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
 jobs:
   test:
+    timeout-minutes: 25
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -18,3 +25,39 @@ jobs:
       - run: npm test
       - run: npm run test:business-db
       - run: npm run build
+      - run: npm run build:safe-preview
+      - run: node scripts/build-live-account.mjs
+      - name: Install browser for synthetic UI verification
+        run: npx playwright install --with-deps chromium
+      - name: Verify synthetic mobile and RTL UI
+        run: npm run test:phase2-browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: teman-phase2-browser-evidence
+          path: docs/evidence/phase2/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Prepare disposable local stack
+        run: node scripts/prepare-supabase-integration.mjs
+      - name: Start isolated Supabase services
+        run: |
+          umask 077
+          if ! npx --yes supabase@3.1.0 start --workdir .integration --exclude studio,postgres-meta,edge-runtime,realtime,imgproxy,logflare,vector,supavisor > .integration/start.log 2>&1; then
+            node scripts/safe-integration-diagnostic.mjs
+            exit 1
+          fi
+          npx --yes supabase@3.1.0 status --workdir .integration -o json > .integration/status.json 2> .integration/status.log
+      - name: Real local Auth and PostgREST acceptance
+        run: node scripts/test-supabase-integration.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: teman-founder-role-real-integration-evidence
+          path: docs/evidence/founder-role/
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Dispose synthetic stack
+        if: always()
+        run: npx --yes supabase@3.1.0 stop --workdir .integration --no-backup > /dev/null 2>&1

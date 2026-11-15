@@ -1,0 +1,7 @@
+
+> teman-haramain-by-tgpu@0.1.0 test:business-db
+> node scripts/test-business-db.mjs
+
+PASS 15 database checks: validation, self-approval denial, reviewer spoof denial, tenant isolation, immutable evidence, founder review, append-only review history, anonymous denial.
+PASS 27 total SQL checks including moderated publication, enquiry persistence, replies, sender spoof denial and suspension hiding.
+PASS 46 total SQL checks including Phase 2 profile privacy, edit moderation, response timestamps, real/test metrics, pilot feedback, document metadata tenant access and quota.
