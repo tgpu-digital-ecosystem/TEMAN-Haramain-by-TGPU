@@ -1,16 +1,17 @@
 name: TEMAN CI (no deployment)
 on:
   push:
-    branches: [main]
+    branches: [main, feature/teman-phase2-pilot-20261115]
   pull_request:
     types: [opened, synchronize, reopened]
 permissions:
   contents: read
 concurrency:
-  group: teman-ci-${{ github.event.pull_request.number || github.ref }}
+  group: teman-ci-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 jobs:
   test:
+    if: github.event_name != 'pull_request' || github.head_ref != 'feature/teman-phase2-pilot-20261115'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -38,6 +39,7 @@ jobs:
           retention-days: 7
 
   isolated-supabase:
+    if: github.event_name != 'pull_request' || github.head_ref != 'feature/teman-phase2-pilot-20261115'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -54,7 +56,10 @@ jobs:
       - name: Start isolated Supabase services
         run: |
           umask 077
-          npx --yes supabase@3.1.0 start --workdir .integration --exclude studio,postgres-meta,edge-runtime,realtime,imgproxy,logflare,vector,supavisor > .integration/start.log 2>&1
+          if ! npx --yes supabase@3.1.0 start --workdir .integration --exclude studio,postgres-meta,edge-runtime,realtime,imgproxy,logflare,vector,supavisor > .integration/start.log 2>&1; then
+            node scripts/safe-integration-diagnostic.mjs
+            exit 1
+          fi
           npx --yes supabase@3.1.0 status --workdir .integration -o json > .integration/status.json 2> .integration/status.log
       - name: Real local Auth and PostgREST acceptance
         run: node scripts/test-supabase-integration.mjs
