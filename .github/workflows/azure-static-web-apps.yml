@@ -1,7 +1,7 @@
 name: TEMAN CI (no deployment)
 on:
   push:
-    branches: [main, 'feature/teman-business-*']
+    branches: [main, 'feature/teman-business-*', 'feature/teman-phase2-*']
   pull_request:
     types: [opened, synchronize, reopened]
 permissions:
@@ -18,3 +18,14 @@ jobs:
       - run: npm test
       - run: npm run test:business-db
       - run: npm run build
+      - name: Install browser for synthetic UI verification
+        run: npx playwright install --with-deps chromium
+      - name: Verify synthetic mobile and RTL UI
+        run: npm run test:phase2-browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: teman-phase2-browser-evidence
+          path: docs/evidence/phase2/
+          if-no-files-found: ignore
+          retention-days: 7
