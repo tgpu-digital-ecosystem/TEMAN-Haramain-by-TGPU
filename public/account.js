@@ -15,7 +15,7 @@ const callbackError=hash.get('error_description')||hash.get('error');
 if(hash.has('access_token')||hash.has('refresh_token'))history.replaceState(null,'',location.pathname+location.search);
 if(callbackError){history.replaceState(null,'',location.pathname+location.search);queueMicrotask(()=>say('Email link expired or invalid. Request a new verification or recovery email.'));}
 if(recoveryToken){token=recoveryToken;history.replaceState(null,'',location.pathname+location.search);$('guest').hidden=true;$('guest').style.display='none';$('recovery').hidden=false;}
-const say=t=>{status.textContent=t};
+let lastStatus='';const say=text=>{lastStatus=text;const keys={'Signed in. You can now continue to the app.':'signed','Signed out.':'signedout',[networkMessage]:'network'};status.textContent=keys[text]&&window.TemanAccess?window.TemanAccess.t(keys[text]):text;};
 const busy=v=>{for(const b of document.querySelectorAll('button'))b.disabled=v||limited(b.id)};
 async function api(path,body,bearer){
  const res=await request(base+'/auth/v1/'+path,{method:'POST',headers:{'Content-Type':'application/json','apikey':key,...(bearer?{'Authorization':'Bearer '+bearer}:{})},body:JSON.stringify(body)});
@@ -32,11 +32,11 @@ function renderAccess(){
  const m=access?.membership;$('membership').textContent=translate('membership')+': '+translate(m?(m.tier==='vip'&&m.status==='active'&&new Date(m.vip_expires_at)>new Date()?'vip':'basic'):'unverified');
  $('owner-link').hidden=!access?.founder||window.TemanAuthConfig?.ownerWorkspaceAvailable===false;
 }
-async function show(user){const check=++ownerCheck;access=null;$('owner-link').hidden=true;const ok=!!user;guest.style.display=ok?'none':'block';signed.style.display=ok?'block':'none';$('signed-email').textContent=ok?translate('email')+': '+(user.email||''):'';renderAccess();if(!ok)return;
+async function show(user){const check=++ownerCheck;access=null;$('owner-link').hidden=true;const ok=!!user;guest.style.display=ok?'none':'block';signed.style.display=ok?'block':'none';$('signed-email').textContent=ok?translate('email')+': '+(user.email||''):'';renderAccess();$('account-intro').hidden=ok;if(!ok)return;
  $('account-role').textContent=translate('role')+': '+translate('checking');
  try{const verified=await window.TemanAccess.verify(token);if(check!==ownerCheck)return;access=verified;$('signed-email').textContent=translate('email')+': '+verified.user.email;}catch{}if(check===ownerCheck)renderAccess();
 }
-window.addEventListener('teman-language-changed',()=>{renderAccess();if(access)$('signed-email').textContent=translate('email')+': '+access.user.email;});
+window.addEventListener('teman-language-changed',()=>{say(lastStatus);renderAccess();if(access)$('signed-email').textContent=translate('email')+': '+access.user.email;});
 window.addEventListener('teman-session-cleared',()=>{token='';void show(null);});
 $('verify-access').addEventListener('click',()=>run(async()=>{token=await(window.TemanSession?.getAccessToken()||token);await show({id:'pending'});}));
 window.TemanAccess?.init();
