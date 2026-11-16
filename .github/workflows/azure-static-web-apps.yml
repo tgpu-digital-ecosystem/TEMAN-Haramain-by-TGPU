@@ -33,6 +33,8 @@ jobs:
         run: npm run test
       - name: Verify app build
         run: npm run build
+      - name: Verify Cloudflare Worker build
+        run: npm run build:worker
 
 
 # Azure deployment and live-domain verification were intentionally retired from this

@@ -30,7 +30,7 @@ type Body = {
 export async function familyCheckIn(request: HttpRequest, _context: InvocationContext): Promise<HttpResponseInit> {
   if (!familyStorageConfigured()) return jsonResponse(503, { ok: false, configurationRequired: true });
 
-  const body = await request.json() as Body;
+  const body = await request.json().catch(() => ({})) as Body;
   const familyId = safeText(body.familyId, 64);
   const writeToken = safeText(body.writeToken, 128);
   const checkIn = body.checkIn;
