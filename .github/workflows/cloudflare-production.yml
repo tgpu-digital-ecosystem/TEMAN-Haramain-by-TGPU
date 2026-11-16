@@ -1,0 +1,59 @@
+name: TEMAN — Cloudflare production deploy
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: teman-cloudflare-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 20
+    steps:
+      - name: Checkout production branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Run regression tests
+        run: npm test
+      - name: Build app and static assets
+        run: npm run build
+      - name: Typecheck Worker
+        run: npm run build:worker
+      - name: Verify deployment inputs
+        run: |
+          test -f dist/index.html
+          test -f worker/index.ts
+          test -f wrangler.json
+      - name: Wrangler dry-run
+        run: npx --yes wrangler@4 deploy --dry-run --outdir /tmp/teman-wrangler-dryrun
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: '561efe57fa5684d069f598083013eee2'
+      - name: Deploy existing tgpu-teman Worker and assets
+        run: npx --yes wrangler@4 deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: '561efe57fa5684d069f598083013eee2'
+      - name: Verify public site responds
+        run: |
+          curl --fail --silent --show-error --location --retry 3 --retry-delay 3 --output /dev/null https://teman.tgpu.my/
+          curl --silent --show-error --location --retry 3 --retry-delay 3 --dump-header /tmp/family-headers --output /tmp/family-response https://teman.tgpu.my/api/family/status
+          grep -qi '^cache-control:.*no-store' /tmp/family-headers
+          if grep -q '"configurationRequired":true' /tmp/family-response; then
+            echo 'Family API origin was not configured in production' >&2
+            exit 1
+          fi
