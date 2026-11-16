@@ -1,0 +1,63 @@
+name: Gemini PR Review (manual, review-only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Existing pull request number to review'
+        required: true
+        type: number
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: gemini-review-${{ inputs.pr_number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout trusted default branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Run Gemini code review
+        uses: google-github-actions/run-gemini-cli@v0
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: 'true'
+          GITHUB_TOKEN: '${{ github.token }}'
+        with:
+          gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
+          github_pr_number: '${{ inputs.pr_number }}'
+          workflow_name: gemini-review
+          settings: |-
+            {
+              "model": {"maxSessionTurns": 25},
+              "mcpServers": {
+                "github": {
+                  "command": "docker",
+                  "args": [
+                    "run", "-i", "--rm",
+                    "-e", "GITHUB_PERSONAL_ACCESS_TOKEN",
+                    "ghcr.io/github/github-mcp-server:v0.27.0"
+                  ],
+                  "includeTools": [
+                    "add_comment_to_pending_review",
+                    "pull_request_read",
+                    "pull_request_review_write"
+                  ],
+                  "env": {
+                    "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+                  }
+                }
+              },
+              "tools": {"core": []}
+            }
+          extensions: |-
+            ["https://github.com/gemini-cli-extensions/code-review"]
+          prompt: '/pr-code-review'
