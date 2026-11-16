@@ -1,6 +1,7 @@
 import { onTemanUiRefresh, requestTemanUiRefresh } from './ui-refresh';
 
 type Locale = 'ms' | 'en' | 'ar';
+type City = 'makkah' | 'madinah';
 
 type Profile = {
   pilgrimName?: string;
@@ -68,7 +69,16 @@ function locale(): Locale {
   return 'ms';
 }
 
-function city() { return localStorage.getItem('teman-city') === 'madinah' ? 'madinah' : 'makkah'; }
+function city(): City { return localStorage.getItem('teman-city') === 'madinah' ? 'madinah' : 'makkah'; }
+
+// Saudi Ministry of Interior guidance identifies the 911 Unified Security
+// Operations Center for Makkah Region (as well as Riyadh and Eastern Province).
+// TEMAN's current city model covers Makkah and Madinah, so 911 is only shown
+// while the pilgrim has selected Makkah. Nationwide service-specific numbers
+// remain available in both city views.
+export function supportsUnified911(selectedCity: City) {
+  return selectedCity === 'makkah';
+}
 function dial(number: string) { window.location.href = `tel:${number}`; }
 function loadProfile(): Profile { try { return JSON.parse(localStorage.getItem('teman-profile') || '{}') as Profile; } catch { return {}; } }
 function loadLocation(key: string): StoredLocation | null {
@@ -180,7 +190,7 @@ export function initSaudiEmergency() {
 
     const t = COPY[locale()]; section.querySelector<HTMLElement>('[data-title]')!.textContent = t.title; section.querySelector<HTMLElement>('[data-intro]')!.textContent = t.intro; section.querySelector<HTMLElement>('[data-official]')!.textContent = t.official;
     (['unified', 'ambulance', 'police', 'civil', 'health'] as const).forEach(service => { const b = section!.querySelector<HTMLButtonElement>(`[data-service="${service}"]`)!; b.querySelector('strong')!.textContent = t[service]; b.querySelector('span')!.textContent = t[`${service}Hint` as keyof typeof t]; });
-    section.querySelector<HTMLButtonElement>('[data-service="unified"]')!.hidden = false;
+    section.querySelector<HTMLButtonElement>('[data-service="unified"]')!.hidden = !supportsUnified911(city());
 
     let tools = page.querySelector<HTMLElement>('.fieldTools');
     if (!tools) {
