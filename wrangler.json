@@ -1,9 +1,14 @@
 {
   "name": "tgpu-teman",
   "compatibility_date": "2026-11-10",
+  "main": "./worker/index.ts",
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
     "not_found_handling": "single-page-application"
   },
-  "previews": {}
+  "previews": {},
+  "vars": {
+    "FAMILY_API_ORIGIN": "https://gray-island-074750b00.3.azurestaticapps.net"
+  }
 }
