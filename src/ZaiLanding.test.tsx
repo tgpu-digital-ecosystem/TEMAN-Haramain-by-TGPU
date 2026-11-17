@@ -13,6 +13,16 @@ describe('Z.ai TEMAN public landing integration', () => {
     expect(source).not.toContain('heroImage');
     expect(source).not.toContain('madinahImage');
   });
+  it('keeps accessible responsive and RTL styling without remote hero dependencies', () => {
+    const styles = readFileSync(new URL('./zai-landing.css', import.meta.url), 'utf8');
+    expect(styles).toContain('.zai[dir=rtl]');
+    expect(styles).toContain('@media(max-width:850px)');
+    expect(styles).toContain('@media(max-width:420px)');
+    expect(styles).toContain('.zai .zai-hero{');
+    expect(styles).toContain('.zai .zai-about{');
+    expect(styles).toContain('min-height:48px');
+    expect(styles).not.toContain('z-cdn-media.chatglm.cn');
+  });
   it('keeps public emergency contacts correct', () => {
     for (const number of ['911', '997', '998', '999', '937']) {
       expect(markup).toContain('href="tel:' + number + '"');
