@@ -1,10 +1,18 @@
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import ZaiLanding from './ZaiLanding';
 
 describe('Z.ai TEMAN public landing integration', () => {
   const markup = renderToStaticMarkup(React.createElement(ZaiLanding, { onEnter: () => {} }));
+  it('does not depend on expiring signed image URLs', () => {
+    const source = readFileSync(new URL('./ZaiLanding.tsx', import.meta.url), 'utf8');
+    expect(source).not.toContain('z-cdn-media.chatglm.cn');
+    expect(source).not.toContain('auth_key=');
+    expect(source).not.toContain('heroImage');
+    expect(source).not.toContain('madinahImage');
+  });
   it('keeps public emergency contacts correct', () => {
     for (const number of ['911', '997', '998', '999', '937']) {
       expect(markup).toContain('href="tel:' + number + '"');
